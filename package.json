@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "ioredis": "^5.3.2",
+    "mongodb": "^6.1.0",
+    "puppeteer": "^21.3.8",
+    "redis": "^4.6.10"
+  }
+}
