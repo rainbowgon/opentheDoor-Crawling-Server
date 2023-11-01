@@ -4,12 +4,12 @@ import { ELASTIC_SEARCH_URL } from "../tools/config";
 
 const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
-const indexName = "themes";
+const INDEX_NAME = "themes";
 
 async function createIndex() {
   try {
     // Check if the index already exists
-    const indexExists = await esClient.indices.exists({ index: indexName });
+    const indexExists = await esClient.indices.exists({ index: INDEX_NAME });
     if (indexExists) {
       await esClient.indices.delete({ index: indexName });
     }
