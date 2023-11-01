@@ -1,6 +1,6 @@
 import esIndexObject from "./esIndexObject";
+import { Client } from "@elastic/elasticsearch";
 
-const { Client } = require("@elastic/elasticsearch"); // ElasticSearch 사용을 위한
 const esClient = new Client({ node: "http://localhost:9200" });
 
 const indexName = "themes";
