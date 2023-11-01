@@ -1,10 +1,10 @@
 import { MongoClient } from "mongodb";
 import Redis from "ioredis";
 import createIndex from "../../common/elasticSearch/createIndex";
-import createBrowser from "../../common/config/fetch";
+import createBrowser from "../../common/tools/fetch";
+import { MONGODB_URL } from "../../common/tools/config";
 
 const browser = await createBrowser();
-const mongoDbUrl = "mongodb://rainbow:rainbowA307@127.0.0.1:27017";
 
 // 지점 아이디가 0~40 이였는데 이 중 데이터가 존재하는 것만 골라냄
 const successfulBids = [
@@ -15,7 +15,7 @@ const successfulBids = [
 const parallelBatches = 4;
 
 const run = async () => {
-  const mongoDbClient = new MongoClient(mongoDbUrl);
+  const mongoDbClient = new MongoClient(MONGODB_URL);
   const redisClient = new Redis(); // Redis 클라이언트 생성
 
   try {

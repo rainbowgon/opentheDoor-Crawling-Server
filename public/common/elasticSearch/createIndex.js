@@ -1,7 +1,8 @@
 import esIndexObject from "./esIndexObject";
 import { Client } from "@elastic/elasticsearch";
+import { ELASTIC_SEARCH_URL } from "../tools/config";
 
-const esClient = new Client({ node: "http://localhost:9200" });
+const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
 const indexName = "themes";
 
