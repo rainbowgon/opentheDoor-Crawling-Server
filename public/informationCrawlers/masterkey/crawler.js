@@ -1,6 +1,8 @@
 import crypto from "crypto";
-import { createPage } from "../../config/fetch";
-import insertData from "../common/elasticSearch/insertData";
+import { createPage } from "../../common/config/fetch";
+import insertData from "../../common/elasticSearch/insertData";
+
+const TARGET_URL = "https://www.master-key.co.kr/booking/bk_detail";
 
 const crawlAllPages = async (bids, browser, collection, redisClient) => {
   const page = await createPage(browser);
@@ -16,31 +18,29 @@ const crawlAllPages = async (bids, browser, collection, redisClient) => {
 };
 
 const crawlSinglePage = async (bid, collection, redisClient) => {
-  await page.goto(`https://www.master-key.co.kr/booking/bk_detail?bid=${bid}`);
+  await page.goto(`${TARGET_URL}?bid=${bid}`);
 
   const isDivExists = await page
     .waitForSelector("#booking_list", { visible: true, timeout: 5000 })
     .catch(() => false);
 
-  if (isDivExists) {
-    const data = await crawlCurrentPage();
-
-    await insertData(data);
-
-    const hash = crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex"); // 해시 데이터 변환
-
-    // Redis 작업을 프로미스로 래핑
-    const redisTask = createRedisTask(hash, collection, redisClient);
-
-    return redisTask;
+  if (!isDivExists) {
+    return;
   }
+
+  const data = await crawlCurrentPage();
+  await insertData(data);
+  const hash = crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex"); // 해시 데이터 변환
+  const redisTask = createRedisTask(hash, collection, redisClient); // Redis 작업을 프로미스로 래핑
+  return redisTask;
 };
 
-const crawlCurrentPage = async () =>
+const crawlCurrentPage = async (page) =>
   page.evaluate(() => {
+    const results = [];
+
     const bookingListDiv = document.getElementById("booking_list");
     const box2InnerDivs = bookingListDiv.querySelectorAll(".box2-inner");
-    const results = [];
     const venue = document.querySelector(".theme-title")?.innerText || "";
     // 크롤링 해오는 부분
     box2InnerDivs.forEach((div) => {

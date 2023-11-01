@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import Redis from "ioredis";
-import createIndex from "../common/elasticSearch/createIndex";
-import createBrowser from "../../config/fetch";
+import createIndex from "../../common/elasticSearch/createIndex";
+import createBrowser from "../../common/config/fetch";
 
 const browser = await createBrowser();
 const mongoDbUrl = "mongodb://rainbow:rainbowA307@127.0.0.1:27017";
@@ -41,3 +41,5 @@ const run = async () => {
     redisClient.quit();
   }
 };
+
+export default run;
