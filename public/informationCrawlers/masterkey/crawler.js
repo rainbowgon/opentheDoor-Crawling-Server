@@ -1,7 +1,8 @@
-const puppeteer = require("puppeteer"); // 크롤링을 위한 라이브러리
-const { MongoClient } = require("mongodb"); // MongoDB 사용을 위한 라이브러리
-const Redis = require("ioredis"); // Redis 사용을 위한 라이브러리
-const crypto = require("crypto"); // Hash데이터로 변경을 위한 라이브러리
+import puppeteer from "puppeteer";
+import { MongoClient } from "mongodb";
+import Redis from "ioredis";
+import crypto from "crypto";
+import createIndex from "../common/elasticSearch/createIndex";
 
 (async () => {
   console.time("Total Execution Time"); // 시간 측정 시작
@@ -23,7 +24,7 @@ const crypto = require("crypto"); // Hash데이터로 변경을 위한 라이브
     const deleteResult = await collection.deleteMany({});
     // console.log('Number of documents deleted:', deleteResult.deletedCount); 기존 데이터 삭제
 
-    createIndex();
+    await createIndex();
 
     // 지점 아이디가 0~40 이였는데 이 중 데이터가 존재하는 것만 골라냄
     const successfulBids = [
@@ -48,11 +49,6 @@ const crypto = require("crypto"); // Hash데이터로 변경을 위한 라이브
     console.timeEnd("Total Execution Time");
   }
 })();
-
-async function indexDataToElasticsearch(data) {
-  const body = data.flatMap((doc) => [{ index: { _index: "themes" } }, doc]);
-  await esClient.bulk({ refresh: true, body });
-}
 
 async function crawlPages(bids, browser, collection, redisClient) {
   const page = await browser.newPage();

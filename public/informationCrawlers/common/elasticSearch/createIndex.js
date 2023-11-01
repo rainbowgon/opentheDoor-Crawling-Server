@@ -1,4 +1,4 @@
-import obj from exIndexObject
+import esIndexObject from "./esIndexObject";
 
 const { Client } = require("@elastic/elasticsearch"); // ElasticSearch 사용을 위한
 const esClient = new Client({ node: "http://localhost:9200" });
@@ -14,14 +14,13 @@ async function createIndex() {
     }
 
     await create();
-
   } catch (error) {
     console.error("Error creating index:", error);
   }
 }
 
 const create = async () => {
-    esClient.indices.create(obj(indexName));
-}
+  esClient.indices.create(esIndexObject(indexName));
+};
 
-export default createIndex
+export default createIndex;
