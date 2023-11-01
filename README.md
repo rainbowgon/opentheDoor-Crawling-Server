@@ -1,1 +1,3 @@
-# frontend
+# Crawling Server
+
+- Node version : v18
