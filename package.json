@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@elastic/elasticsearch": "^8.10.0",
     "crypto": "^1.0.1",
     "ioredis": "^5.3.2",
     "mongodb": "^6.1.0",
