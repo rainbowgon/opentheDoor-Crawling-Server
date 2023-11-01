@@ -2,6 +2,10 @@ const puppeteer = require('puppeteer'); // 크롤링을 위한 라이브러리
 const { MongoClient } = require('mongodb'); // MongoDB 사용을 위한 라이브러리
 const Redis = require('ioredis'); // Redis 사용을 위한 라이브러리
 const crypto = require('crypto'); // Hash데이터로 변경을 위한 라이브러리
+const { Client } = require('@elastic/elasticsearch'); // ElasticSearch사용을 위한
+const esClient = new Client({ node: 'http://localhost:9200' });
+
+
 
 (async () => {
   console.time('Total Execution Time');  // 시간 측정 시작
@@ -20,8 +24,11 @@ const crypto = require('crypto'); // Hash데이터로 변경을 위한 라이브
     const db = client.db("Escape"); // db 연결
     const collection = db.collection("room"); // collection(mysql 테이블 느낌)
 
-    // const deleteResult = await collection.deleteMany({});
+    const deleteResult = await collection.deleteMany({});
     // console.log('Number of documents deleted:', deleteResult.deletedCount); 기존 데이터 삭제
+
+    createIndex();
+
 
     const successfulBids = [ 1, 2, 7, 8, 10, 11, 12,
         13, 14, 16, 18, 19, 20, 21, 23,
@@ -47,6 +54,147 @@ const crypto = require('crypto'); // Hash데이터로 변경을 위한 라이브
   }
 })();
 
+async function createIndex() {
+  try {
+    // Check if the index already exists
+    const indexExists = await esClient.indices.exists({ index: 'themes' });
+    if (indexExists) {
+      console.log('Index already exists. Deleting old index.');
+      await esClient.indices.delete({ index: 'themes' });
+    }
+
+    // Create a new index with the specified settings and mappings
+    const response = await esClient.indices.create({
+    index: 'themes',
+    body: {
+      "settings": {
+        "index": {
+          "analysis": {
+            "tokenizer": {
+              "my_nori_tokenizer": {
+                "type": "nori_tokenizer",
+                "decompound_mode": "mixed",
+                "discard_punctuation": "false"
+              },
+              "my_ngram_tokenizer": {
+                "type": "ngram",
+                "min_gram": 2,
+                "max_gram": 3
+              }
+            },
+            // 이 필터가 없으면 문장에서 단어 사이에 공백까지도 토큰으로 만들기 때문에 검색 품질이 저하된다.
+            "filter": {
+              "stopwords": {
+                "type": "stop",
+                "stopwords": " " // "" 토큰은 제거된다.
+              }
+            },
+            "analyzer": {
+              "my_nori_analyzer": {
+                "type": "custom",
+                "tokenizer": "my_nori_tokenizer",
+                "filter": ["lowercase", "stop", "trim", "stopwords", "nori_part_of_speech"],
+                "char_filter": ["html_strip"]
+              },
+              "my_ngram_analyzer": {
+                "type": "custom",
+                "tokenizer": "my_ngram_tokenizer",
+                "filter": ["lowercase", "stop", "trim", "stopwords",  "nori_part_of_speech"],
+                "char_filter": ["html_strip"]
+              }
+            }
+          }
+        }
+      },
+      "mappings" : {
+        "properties" : {
+            "title": {
+                "type" : "text",
+                "analyzer": "standard",
+                "search_analyzer": "standard",
+                "fields": {
+                    "nori": { 
+                        "type": "text",
+                        "analyzer": "my_nori_analyzer",
+                        "search_analyzer": "my_nori_analyzer"
+                    },
+                    "ngram": { 
+                        "type": "text", 
+                        "analyzer": "my_ngram_analyzer",
+                        "search_analyzer": "my_ngram_analyzer"
+                    }
+                }
+            },
+            "venue": {
+                "type" : "text",
+                "analyzer": "standard",
+                "search_analyzer": "standard",
+                "fields": {
+                    "nori": { 
+                        "type": "text",
+                        "analyzer": "my_nori_analyzer",
+                        "search_analyzer": "my_nori_analyzer"
+                    },
+                    "ngram": { 
+                        "type": "text", 
+                        "analyzer": "my_ngram_analyzer",
+                        "search_analyzer": "my_ngram_analyzer"
+                    }
+                }
+            },
+            "explanation": {
+                "type" : "text",
+                "analyzer": "standard",
+                "search_analyzer": "standard",
+                "fields": {
+                    "nori": { 
+                        "type": "text",
+                        "analyzer": "my_nori_analyzer",
+                        "search_analyzer": "my_nori_analyzer"
+                    },
+                    "ngram": { 
+                        "type": "text", 
+                        "analyzer": "my_ngram_analyzer",
+                        "search_analyzer": "my_ngram_analyzer"
+                    }
+                }
+            },
+            "genre": {
+                "type" : "text",
+                "analyzer": "standard",
+                "search_analyzer": "standard",
+                "fields": {
+                    "nori": { 
+                        "type": "text",
+                        "analyzer": "my_nori_analyzer",
+                        "search_analyzer": "my_nori_analyzer"
+                    },
+                    "ngram": { 
+                        "type": "text", 
+                        "analyzer": "my_ngram_analyzer",
+                        "search_analyzer": "my_ngram_analyzer"
+                    }
+                }
+            }
+        }
+    }
+  }
+});
+
+
+    console.log('Index created successfully:', response.body);
+  } catch (error) {
+    console.error('Error creating index:', error);
+  }
+}
+
+
+async function indexDataToElasticsearch(data) {
+  const body = data.flatMap(doc => [{ index: { _index: 'themes' } }, doc]);
+  await esClient.bulk({ refresh: true, body });
+}
+
+
 async function crawlPages(bids, browser, collection, redisClient) {
   const page = await browser.newPage();
   const redisTasks = [];
@@ -71,7 +219,7 @@ async function crawlPages(bids, browser, collection, redisClient) {
             const bookingListDiv = document.getElementById('booking_list');
             const box2InnerDivs = bookingListDiv.querySelectorAll('.box2-inner');
             const results = [];
-        
+            const venue = document.querySelector('.theme-title')?.innerText || '';
             // 크롤링 해오는 부분
             box2InnerDivs.forEach(div => {
               const title = div.querySelector('.left.room_explanation_go .title')?.innerText || '';
@@ -98,7 +246,7 @@ async function crawlPages(bids, browser, collection, redisClient) {
               
         
               results.push({
-                bid,
+                venue,
                 title,
                 explanation,
                 img,
@@ -147,10 +295,10 @@ async function crawlPages(bids, browser, collection, redisClient) {
                   }
               });
           });
-          
-          
         
               redisTasks.push(redisTask);
+               // Elasticsearch에 데이터 저장
+              await indexDataToElasticsearch(data);
     } else {
       console.log(`No booking list found for bid=${bid}`);
     }
