@@ -4,12 +4,7 @@ import createIndex from "../../common/elasticSearch/createIndex.js";
 import { createBrowser } from "../../common/tools/fetch.js";
 import { MONGODB_COLLECTION_NAME, MONGODB_DB_NAME, MONGODB_URL } from "../../common/config/env.js";
 import crawlAllPages from "./crawler.js";
-
-// 지점 아이디가 0~40 이였는데 이 중 데이터가 존재하는 것만 골라냄
-const BIDS = [
-  1, 2, 7, 8, 10, 11, 12, 13, 14, 16, 18, 19, 20, 21, 23, 24, 26, 27, 28, 29, 30, 31, 32, 35, 36,
-  40,
-];
+import { BID_LIST } from "../../common/config/masterkey.js";
 
 const PARALLEL_BATCH_SIZE = 4;
 
@@ -27,8 +22,8 @@ const run = async () => {
     await createIndex();
 
     const tasks = [];
-    for (let i = 0; i < BIDS.length; i += PARALLEL_BATCH_SIZE) {
-      const batch = BIDS.slice(i, i + PARALLEL_BATCH_SIZE); // 병렬처리를 위해 설정
+    for (let i = 0; i < BID_LIST.length; i += PARALLEL_BATCH_SIZE) {
+      const batch = BID_LIST.slice(i, i + PARALLEL_BATCH_SIZE); // 병렬처리를 위해 설정
       tasks.push(crawlAllPages(batch, browser, collection, redisClient));
     }
 

@@ -1,9 +1,7 @@
+import { TARGET_URL, VENUE } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
 import createTask from "../../common/tools/createInsertTask.js";
 import { createPage } from "../../common/tools/fetch.js";
-
-const TARGET_URL = "https://www.master-key.co.kr/booking/bk_detail";
-const VENUE = "masterkey";
 
 const crawlAllPages = async (bids, browser, collection, redisClient) => {
   const page = await createPage(browser);
