@@ -3,6 +3,7 @@ import Redis from "ioredis";
 import createIndex from "../../common/elasticSearch/createIndex";
 import createBrowser from "../../common/tools/fetch";
 import { MONGODB_URL } from "../../common/tools/config";
+import crawlAllPages from "./crawler";
 
 // 지점 아이디가 0~40 이였는데 이 중 데이터가 존재하는 것만 골라냄
 const BIDS = [
@@ -28,7 +29,7 @@ const run = async () => {
     const tasks = [];
     for (let i = 0; i < BIDS.length; i += PARALLEL_BATCH_SIZE) {
       const batch = BIDS.slice(i, i + PARALLEL_BATCH_SIZE); // 병렬처리를 위해 설정
-      tasks.push(crawlPages(batch, browser, collection, redisClient));
+      tasks.push(crawlAllPages(batch, browser, collection, redisClient));
     }
 
     await Promise.all(tasks);
