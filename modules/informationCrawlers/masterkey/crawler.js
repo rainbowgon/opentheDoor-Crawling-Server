@@ -1,9 +1,7 @@
+import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
-import createTask from "../../common/tools/createInsertTask.js";
 import { createPage } from "../../common/tools/fetch.js";
-
-const TARGET_URL = "https://www.master-key.co.kr/booking/bk_detail";
-const VENUE = "masterkey";
+import { createInsertDataTask } from "../../common/tools/taskCreator.js";
 
 const crawlAllPages = async (bids, browser, collection, redisClient) => {
   const page = await createPage(browser);
@@ -19,7 +17,8 @@ const crawlAllPages = async (bids, browser, collection, redisClient) => {
 };
 
 const crawlSinglePage = async (page, bid, collection, redisClient) => {
-  await page.goto(`${TARGET_URL}?bid=${bid}`);
+  const url = createTargetUrl(bid);
+  await page.goto(url);
 
   const isDivExists = await page
     .waitForSelector("#booking_list", { visible: true, timeout: 5000 })
@@ -30,8 +29,9 @@ const crawlSinglePage = async (page, bid, collection, redisClient) => {
   }
 
   const data = await crawlCurrentPage(page);
+
   await esInsertData(data);
-  const task = createTask(VENUE, bid, data, collection, redisClient); // Redis 작업을 프로미스로 래핑
+  const task = createInsertDataTask(VENUE, bid, data, collection, redisClient); // Redis 작업을 프로미스로 래핑
   return task;
 };
 

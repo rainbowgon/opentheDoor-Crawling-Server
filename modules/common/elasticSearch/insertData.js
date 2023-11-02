@@ -1,5 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
-import { ELASTIC_SEARCH_URL, INDEX_NAME } from "../tools/config.js";
+import { ELASTIC_SEARCH_URL, INDEX_NAME } from "../config/env.js";
 
 const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
