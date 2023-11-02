@@ -1,9 +1,9 @@
 import { MongoClient } from "mongodb";
 import Redis from "ioredis";
-import createIndex from "../../common/elasticSearch/createIndex";
-import createBrowser from "../../common/tools/fetch";
-import { MONGODB_URL } from "../../common/tools/config";
-import crawlAllPages from "./crawler";
+import createIndex from "../../common/elasticSearch/createIndex.js";
+import { createBrowser } from "../../common/tools/fetch.js";
+import { MONGODB_URL } from "../../common/tools/config.js";
+import crawlAllPages from "./crawler.js";
 
 // 지점 아이디가 0~40 이였는데 이 중 데이터가 존재하는 것만 골라냄
 const BIDS = [

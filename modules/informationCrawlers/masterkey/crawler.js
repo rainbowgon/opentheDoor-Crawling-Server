@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { createPage } from "../../common/config/fetch";
-import insertData from "../../common/elasticSearch/insertData";
+import insertData from "../../common/elasticSearch/insertData.js";
+import { createPage } from "../../common/tools/fetch.js";
 
 const TARGET_URL = "https://www.master-key.co.kr/booking/bk_detail";
 

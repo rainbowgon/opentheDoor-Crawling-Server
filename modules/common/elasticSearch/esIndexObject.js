@@ -1,4 +1,4 @@
-export default obj = (indexName) => {
+const obj = (indexName) => {
   return {
     index: indexName,
     body: {
@@ -116,3 +116,5 @@ export default obj = (indexName) => {
     },
   };
 };
+
+export default obj;

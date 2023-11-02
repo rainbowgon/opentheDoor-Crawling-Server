@@ -1,9 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
-import { ELASTIC_SEARCH_URL } from "../tools/config";
+import { ELASTIC_SEARCH_URL, INDEX_NAME } from "../tools/config.js";
 
 const esClient = new Client({ node: ELASTIC_SEARCH_URL });
-
-const INDEX_NAME = "themes";
 
 const insertData = async (data) => {
   const body = data.flatMap((doc) => [{ index: { _index: INDEX_NAME } }, doc]);

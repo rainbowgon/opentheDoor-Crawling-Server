@@ -8,5 +8,16 @@
     "mongodb": "^6.1.0",
     "puppeteer": "^21.3.8",
     "redis": "^4.6.10"
-  }
+  },
+  "name": "openthedoor-crawling",
+  "description": "- Node version : v18",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
