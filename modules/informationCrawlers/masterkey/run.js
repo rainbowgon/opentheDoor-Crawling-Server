@@ -2,7 +2,12 @@ import { MongoClient } from "mongodb";
 import Redis from "ioredis";
 import createIndex from "../../common/elasticSearch/createIndex.js";
 import { createBrowser } from "../../common/tools/fetch.js";
-import { MONGODB_COLLECTION_NAME, MONGODB_DB_NAME, MONGODB_URL } from "../../common/config/env.js";
+import {
+  MONGODB_COLLECTION_NAME,
+  MONGODB_DB_NAME,
+  MONGODB_URL,
+  REDIS_URL,
+} from "../../common/config/env.js";
 import crawlAllPages from "./crawler.js";
 import { BID_LIST } from "../../common/config/masterkey.js";
 
@@ -11,7 +16,7 @@ const PARALLEL_BATCH_SIZE = 4;
 const run = async () => {
   const browser = await createBrowser();
   const mongoDbClient = new MongoClient(MONGODB_URL);
-  const redisClient = new Redis(); // Redis 클라이언트 생성
+  const redisClient = new Redis(REDIS_URL); // Redis 클라이언트 생성
 
   try {
     await mongoDbClient.connect();
