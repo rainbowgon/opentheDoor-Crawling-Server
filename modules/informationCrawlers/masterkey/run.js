@@ -16,7 +16,7 @@ const PARALLEL_BATCH_SIZE = 4;
 const run = async () => {
   const browser = await createBrowser();
   const mongoDbClient = new MongoClient(MONGODB_URL);
-  const redisClient = new Redis(REDIS_URL); // Redis 클라이언트 생성
+  const redisClient = new Redis({ url: REDIS_URL }); // Redis 클라이언트 생성
 
   try {
     await mongoDbClient.connect();

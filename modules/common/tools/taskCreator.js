@@ -12,7 +12,7 @@ const createInsertDataTask = (venue, bid, data, collection, redisClient) => {
         return reject(error);
       }
 
-      if (!isChanged(previousHash, hash)) {
+      if (isNotChanged(previousHash, hash)) {
         resolve();
         return;
       }
@@ -31,6 +31,6 @@ const createInsertDataTask = (venue, bid, data, collection, redisClient) => {
   });
 };
 
-const isChanged = (previousHash, currentHash) => previousHash && previousHash === currentHash;
+const isNotChanged = (previousHash, currentHash) => previousHash && previousHash === currentHash;
 
 export { createInsertDataTask };
