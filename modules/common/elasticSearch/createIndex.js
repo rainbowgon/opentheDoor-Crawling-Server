@@ -6,15 +6,17 @@ const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
 const createIndex = async () => {
   try {
-    // Check if the index already exists
-    const indexExists = await esClient.indices.exists({ index: INDEX_NAME });
-    if (indexExists) {
-      await esClient.indices.delete({ index: INDEX_NAME });
-    }
-
+    await deleteIndex(INDEX_NAME);
     await create(INDEX_NAME);
   } catch (error) {
     console.error("Error creating index:", error);
+  }
+};
+
+const deleteIndex = async (indexName) => {
+  const isIndexExist = await esClient.indices.exists({ index: indexName });
+  if (isIndexExist) {
+    await esClient.indices.delete({ index: indexName });
   }
 };
 
