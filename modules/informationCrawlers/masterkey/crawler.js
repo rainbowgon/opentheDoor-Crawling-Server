@@ -46,7 +46,7 @@ const crawlCurrentPage = async (page) =>
     box2InnerDivs.forEach((div) => {
       const title = div.querySelector(".left.room_explanation_go .title")?.innerText || "";
       const explanation = div.querySelector(".left.room_explanation_go")?.dataset.text || "";
-      const img = div.querySelector("img")?.src || "";
+      const poster = div.querySelector("img")?.src || "";
       const genre = div.querySelector(".right .info .hashtags")?.innerText || "";
       const genreArray = genre.split(" ").map((tag) => tag.replace(/#/g, "").trim()); // Split the text by '#' and trim each item
       const spanTags = div.querySelector(".right .info").querySelectorAll("span");
@@ -70,7 +70,7 @@ const crawlCurrentPage = async (page) =>
         venue,
         title,
         explanation,
-        img,
+        poster,
         genre: genreArray,
         level,
         minHeadcount,
