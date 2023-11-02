@@ -9,7 +9,7 @@ const crawlAllPages = async (bids, browser, collection, redisClient) => {
   const redisTasks = [];
 
   for (const bid of bids) {
-    const redisTask = await crawlSinglePage(bid, collection, redisClient);
+    const redisTask = await crawlSinglePage(page, bid, collection, redisClient);
     redisTasks.push(redisTask);
   }
 
@@ -17,7 +17,7 @@ const crawlAllPages = async (bids, browser, collection, redisClient) => {
   return Promise.all(redisTasks);
 };
 
-const crawlSinglePage = async (bid, collection, redisClient) => {
+const crawlSinglePage = async (page, bid, collection, redisClient) => {
   await page.goto(`${TARGET_URL}?bid=${bid}`);
 
   const isDivExists = await page
@@ -28,10 +28,10 @@ const crawlSinglePage = async (bid, collection, redisClient) => {
     return;
   }
 
-  const data = await crawlCurrentPage();
+  const data = await crawlCurrentPage(page);
   await insertData(data);
   const hash = crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex"); // 해시 데이터 변환
-  const redisTask = createRedisTask(hash, collection, redisClient); // Redis 작업을 프로미스로 래핑
+  const redisTask = createRedisTask(bid, data, hash, collection, redisClient); // Redis 작업을 프로미스로 래핑
   return redisTask;
 };
 
@@ -81,7 +81,7 @@ const crawlCurrentPage = async (page) =>
     return results;
   });
 
-const createRedisTask = (bid) =>
+const createRedisTask = (bid, data, hash, collection, redisClient) =>
   new Promise((resolve, reject) => {
     const HASH_KEY = `${bid}_hash`;
     redisClient.get(HASH_KEY, async (error, previousHash) => {

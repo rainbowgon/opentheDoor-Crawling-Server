@@ -2,7 +2,11 @@ import { MongoClient } from "mongodb";
 import Redis from "ioredis";
 import createIndex from "../../common/elasticSearch/createIndex.js";
 import { createBrowser } from "../../common/tools/fetch.js";
-import { MONGODB_URL } from "../../common/tools/config.js";
+import {
+  MONGODB_COLLECTION_NAME,
+  MONGODB_DB_NAME,
+  MONGODB_URL,
+} from "../../common/tools/config.js";
 import crawlAllPages from "./crawler.js";
 
 // 지점 아이디가 0~40 이였는데 이 중 데이터가 존재하는 것만 골라냄
@@ -20,8 +24,8 @@ const run = async () => {
 
   try {
     await mongoDbClient.connect();
-    const db = mongoDbClient.db("Escape"); // db 연결
-    const collection = db.collection("room"); // collection(mysql 테이블 느낌)
+    const db = mongoDbClient.db(MONGODB_DB_NAME); // db 연결
+    const collection = db.collection(MONGODB_COLLECTION_NAME); // collection(mysql 테이블 느낌)
     await collection.deleteMany({}); // 기존 데이터 삭제
 
     await createIndex();
@@ -33,8 +37,10 @@ const run = async () => {
     }
 
     await Promise.all(tasks);
+    return true;
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error(error);
+    return false;
   } finally {
     await browser.close();
     await mongoDbClient.close();

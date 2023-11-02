@@ -1,12 +1,8 @@
-import dotenv from "dotenv";
-
 import run from "./modules/informationCrawlers/masterkey/run.js";
+import express from "express";
+import http from "http";
+import bodyParser from "body-parser";
 
-dotenv.config({ path: ".env.local" });
-
-const express = require("express");
-const http = require("http");
-const bodyParser = require("body-parser");
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -16,7 +12,10 @@ const server = http.createServer(app);
 const PORT = 3000;
 
 app.get("/info/masterkey", async (req, res) => {
-  await run();
+  const isSucceed = await run();
+  res.json({
+    success: isSucceed,
+  });
 });
 
 server.listen(PORT, () => {

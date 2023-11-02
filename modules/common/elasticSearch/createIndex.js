@@ -12,13 +12,13 @@ const createIndex = async () => {
       await esClient.indices.delete({ index: INDEX_NAME });
     }
 
-    await create();
+    await create(INDEX_NAME);
   } catch (error) {
     console.error("Error creating index:", error);
   }
 };
 
-const create = async () => {
+const create = async (indexName) => {
   esClient.indices.create(esIndexObject(indexName));
 };
 
