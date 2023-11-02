@@ -1,4 +1,4 @@
-import { TARGET_URL, VENUE } from "../../common/config/masterkey.js";
+import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
 import createTask from "../../common/tools/createInsertTask.js";
 import { createPage } from "../../common/tools/fetch.js";
@@ -17,7 +17,7 @@ const crawlAllPages = async (bids, browser, collection, redisClient) => {
 };
 
 const crawlSinglePage = async (page, bid, collection, redisClient) => {
-  await page.goto(`${TARGET_URL}?bid=${bid}`);
+  await page.goto(createTargetUrl(bid));
 
   const isDivExists = await page
     .waitForSelector("#booking_list", { visible: true, timeout: 5000 })
