@@ -1,20 +1,21 @@
-import crypto from "crypto";
-import insertData from "../../common/elasticSearch/insertData.js";
+import esInsertData from "../../common/elasticSearch/insertData.js";
+import createTask from "../../common/tools/createInsertTask.js";
 import { createPage } from "../../common/tools/fetch.js";
 
 const TARGET_URL = "https://www.master-key.co.kr/booking/bk_detail";
+const VENUE = "masterkey";
 
 const crawlAllPages = async (bids, browser, collection, redisClient) => {
   const page = await createPage(browser);
-  const redisTasks = [];
+  const tasks = [];
 
   for (const bid of bids) {
-    const redisTask = await crawlSinglePage(page, bid, collection, redisClient);
-    redisTasks.push(redisTask);
+    const task = await crawlSinglePage(page, bid, collection, redisClient);
+    tasks.push(task);
   }
 
   await page.close();
-  return Promise.all(redisTasks);
+  return Promise.all(tasks);
 };
 
 const crawlSinglePage = async (page, bid, collection, redisClient) => {
@@ -29,10 +30,9 @@ const crawlSinglePage = async (page, bid, collection, redisClient) => {
   }
 
   const data = await crawlCurrentPage(page);
-  await insertData(data);
-  const hash = crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex"); // 해시 데이터 변환
-  const redisTask = createRedisTask(bid, data, hash, collection, redisClient); // Redis 작업을 프로미스로 래핑
-  return redisTask;
+  await esInsertData(data);
+  const task = createTask(VENUE, bid, data, collection, redisClient); // Redis 작업을 프로미스로 래핑
+  return task;
 };
 
 const crawlCurrentPage = async (page) =>
@@ -80,36 +80,5 @@ const crawlCurrentPage = async (page) =>
     });
     return results;
   });
-
-const createRedisTask = (bid, data, hash, collection, redisClient) =>
-  new Promise((resolve, reject) => {
-    const HASH_KEY = `${bid}_hash`;
-    redisClient.get(HASH_KEY, async (error, previousHash) => {
-      if (error) return reject(error);
-
-      if (previousHash && previousHash === hash) {
-        // console.log(`No data change detected for bid=${bid}`);
-        resolve();
-        return;
-      }
-
-      // 이 bid에 대한 데이터가 데이터베이스에 이미 있는지 확인
-      const existingDataCount = await collection.countDocuments({ bid: bid });
-
-      redisClient.set(HASH_KEY, hash, async (error) => {
-        if (error) return reject(error);
-
-        if (isDataExist(existingDataCount)) {
-          await collection.updateMany({ bid: bid }, { $set: data[0] }); // data가 배열이라고 가정하고 첫 번째 요소 사용
-        } else {
-          await collection.insertMany(data);
-        }
-
-        resolve();
-      });
-    });
-  });
-
-const isDataExist = (existingDataCount) => existingDataCount > 0;
 
 export default crawlAllPages;
