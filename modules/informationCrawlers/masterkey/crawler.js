@@ -56,15 +56,6 @@ const crawlCurrentPage = async (page) =>
       const headcount = spanTags[1]?.innerText.match(/(\d~\d명)/)?.[1] || "".split("~");
       const minHeadcount = parseInt(headcount[0], 10);
       const maxHeadcount = parseInt(headcount[2], 10);
-      const pTags = div.querySelectorAll("p");
-      const timePossibleList = [];
-      pTags.forEach((pTag) => {
-        const aTag = pTag.querySelector("a");
-        const timeMatch = aTag?.textContent.match(/(\d{2}:\d{2})/);
-        const time = timeMatch ? timeMatch[1] : "";
-        const possible = aTag?.querySelector("span")?.textContent || "";
-        timePossibleList.push({ time, possible });
-      });
 
       results.push({
         venue,
@@ -75,7 +66,6 @@ const crawlCurrentPage = async (page) =>
         level,
         minHeadcount,
         maxHeadcount,
-        timePossibleList,
       });
     });
     return results;
