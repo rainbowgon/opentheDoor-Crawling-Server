@@ -10,16 +10,18 @@ const esInsertData = async (data) => {
       title: doc.title || null,
       venue: doc.venue || null,
       location: doc.location || null,
+      tel: doc.tel || null,
       explanation: doc.explanation || null,
       level: doc.level || null,
-      timeLimit: doc.duration || null,
+      timeLimit: doc.timeLimit || null,
       price: doc.price || null,
       minHeadcount: doc.minHeadcount || null,
       maxHeadcount: doc.maxHeadcount || null,
-      genre: doc.themeGenre || null,
+      genre: doc.genre || null,
       activity: doc.activityLevel || null,
       horror: doc.fearLevel || null,
-      lockRatio: doc.deviceRatio || null
+      lockRatio: doc.deviceRatio || null,
+      reservationNotice: doc.reservationNotice || null
     };
   });
 
