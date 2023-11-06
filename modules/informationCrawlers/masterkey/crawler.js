@@ -35,9 +35,10 @@ const crawlSinglePage = async (page, bid, collection, redisClient) => {
   return task;
 };
 
-const crawlCurrentPage = async (page) =>
-  page.evaluate(() => {
-    const results = [];
+const crawlCurrentPage = async (page) => {
+
+  const tab1Results = await page.evaluate(() => {
+  const results = [];
 
     const bookingListDiv = document.getElementById("booking_list");
     const box2InnerDivs = bookingListDiv.querySelectorAll(".box2-inner");
@@ -56,15 +57,6 @@ const crawlCurrentPage = async (page) =>
       const headcount = spanTags[1]?.innerText.match(/(\d~\d명)/)?.[1] || "".split("~");
       const minHeadcount = parseInt(headcount[0], 10);
       const maxHeadcount = parseInt(headcount[2], 10);
-      const pTags = div.querySelectorAll("p");
-      const timePossibleList = [];
-      pTags.forEach((pTag) => {
-        const aTag = pTag.querySelector("a");
-        const timeMatch = aTag?.textContent.match(/(\d{2}:\d{2})/);
-        const time = timeMatch ? timeMatch[1] : "";
-        const possible = aTag?.querySelector("span")?.textContent || "";
-        timePossibleList.push({ time, possible });
-      });
 
       results.push({
         venue,
@@ -75,10 +67,74 @@ const crawlCurrentPage = async (page) =>
         level,
         minHeadcount,
         maxHeadcount,
-        timePossibleList,
       });
     });
+
     return results;
   });
+
+    // tab2를 클릭하기 전에, evaluate를 빠져나와야 합니다.
+    await page.click('#tab2'); // tab2를 클릭합니다.
+
+    await Promise.race([
+      page.waitForFunction(() => 
+        document.querySelector('a[href="#tab1"]').classList.contains('active') ||
+        document.querySelector('div#tab2.tab-content').classList.contains('active')
+      ),
+      page.waitForTimeout(3000) // 최대 3000ms까지 기다립니다.
+    ]);
+    // tab2의 데이터를 수집
+    const tab2Results = await page.evaluate(() => {
+      const results = {
+        left: [],
+        right: [],
+        box3InnerHTML: "",
+        reservationNotice: "" 
+      };
+
+      const box3Inner = document.querySelector('.box3-inner');
+        
+        if (box3Inner) {
+          const leftTexts = Array.from(box3Inner.querySelectorAll('.left')).map(el => el.innerText.trim()).join(' ');
+          const rightTexts = Array.from(box3Inner.querySelectorAll('.right')).map(el => el.innerText.trim()).join(' ');
+          results.reservationNotice = leftTexts + " " + rightTexts;
+        }
+
+    
+
+    const box3Inner3 = document.querySelector('.box3-inner3');
+    if (box3Inner3) {
+      const contactInfoText = box3Inner3.innerText.trim();
+
+       // 연락처 정보를 찾아서 results.tel에 할당합니다.
+       const phoneLink = document.querySelector('p > a[href^="tel:"]');
+       if (phoneLink) {
+        results.tel = phoneLink.innerText.trim();
+      }
+       
+       // 주소 정보를 찾아서 results.location에 할당합니다.
+       const addressMatch = contactInfoText.match(/주소 : (.+)/);
+       if (addressMatch && addressMatch[1]) {
+         results.location = addressMatch[1];
+       }
+     }
+    
+  
+     
+      return results;
+    });
+
+    const combinedResults = tab1Results.map(item => ({
+      ...item,
+      tel: tab2Results.tel,
+      location: tab2Results.location,
+      reservationNotice: tab2Results.reservationNotice 
+    }));
+  
+
+    return combinedResults;
+  };
+
+  
 
 export default crawlAllPages;

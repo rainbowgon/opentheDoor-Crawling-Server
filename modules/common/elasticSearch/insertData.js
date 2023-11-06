@@ -4,8 +4,28 @@ import { ELASTIC_SEARCH_URL, INDEX_NAME } from "../config/env.js";
 const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
 const esInsertData = async (data) => {
-  const body = data.flatMap((doc) => [{ index: { _index: INDEX_NAME } }, doc]);
+  const processedData = data.map(doc => {
+    return {
+      poster: doc.poster || null,
+      title: doc.title || null,
+      venue: doc.venue || null,
+      location: doc.location || null,
+      explanation: doc.explanation || null,
+      level: doc.level || null,
+      timeLimit: doc.duration || null,
+      price: doc.price || null,
+      minHeadcount: doc.minHeadcount || null,
+      maxHeadcount: doc.maxHeadcount || null,
+      genre: doc.themeGenre || null,
+      activity: doc.activityLevel || null,
+      horror: doc.fearLevel || null,
+      lockRatio: doc.deviceRatio || null
+    };
+  });
+
+  const body = processedData.flatMap((doc) => [{ index: { _index: INDEX_NAME } }, doc]);
   await esClient.bulk({ refresh: true, body });
 };
 
 export default esInsertData;
+
