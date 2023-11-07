@@ -8,7 +8,7 @@ const esInsertData = async (data) => {
     return {
       poster: doc.poster || null,
       title: doc.title || null,
-      venue: doc.venue || null,
+      venue: "마스터키 " + doc.venue || null,
       location: doc.location || null,
       tel: doc.tel || null,
       explanation: doc.explanation || null,
