@@ -1,5 +1,4 @@
 const axios = require('axios');
-const GOOGLE_API_KEY = 'AIzaSyC-tlGCnzlo1qrL5K2mYeUD_1eP5ZjYa1Q'; // Google Maps API 키
 
 const geocodeAddress = async (address) => {
   try {
