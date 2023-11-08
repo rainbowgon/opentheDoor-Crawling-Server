@@ -21,7 +21,9 @@ const esInsertData = async (data) => {
       activity: doc.activity || null,
       horror: doc.horror || null,
       lockRatio: doc.lockRatio || null,
-      reservationNotice: doc.reservationNotice || null
+      reservationNotice: doc.reservationNotice || null,
+      latitude: doc.latitude || null,
+      longitude: doc.longitude || null,
     };
   });
 

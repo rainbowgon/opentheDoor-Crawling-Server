@@ -1,8 +1,11 @@
 import axios from "axios";
 import { GOOGLE_API_KEY } from '../config/env.js';
 
+
+
 const geocodeAddress = async (address) => {
   try {
+    
     const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
       params: {
         address: address,
@@ -22,3 +25,4 @@ const geocodeAddress = async (address) => {
   }
 };
 
+export default geocodeAddress;
