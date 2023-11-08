@@ -1,4 +1,5 @@
 const axios = require('axios');
+import { GOOGLE_API_KEY } from '../config/env';
 
 const geocodeAddress = async (address) => {
   try {
