@@ -11,9 +11,9 @@ const processDocument  = (doc) => ({
       minHeadcount: doc.minHeadcount || null,
       maxHeadcount: doc.maxHeadcount || null,
       genre: doc.genre || null,
-      activity: doc.activityLevel || null,
-      horror: doc.fearLevel || null,
-      lockRatio: doc.deviceRatio || null,
+      activity: doc.activity || null,
+      horror: doc.horror || null,
+      lockRatio: doc.lockRatio || null,
       reservationNotice: doc.reservationNotice || null
   });
 
