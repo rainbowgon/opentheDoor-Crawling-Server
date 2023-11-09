@@ -124,13 +124,15 @@ const crawlCurrentPage = async (page) => {
 
       return results;
     });
+
     if (tab2Results.location) { // location 값이 있을 때만 지오코딩을 실행합니다.
-    const geocodeResult = await geocodeAddress(tab2Results.location);
-    if (geocodeResult) {
-      tab2Results.latitude = geocodeResult.latitude;
-      tab2Results.longitude = geocodeResult.longitude;
+      const geocodeResult = await geocodeAddress(tab2Results.location);
+      if (geocodeResult) {
+        tab2Results.latitude = geocodeResult.latitude;
+        tab2Results.longitude = geocodeResult.longitude;
+      }
     }
-  }
+    
     const combinedResults = tab1Results.map(item => ({
       ...item,
       tel: tab2Results.tel,
