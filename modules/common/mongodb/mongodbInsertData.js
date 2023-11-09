@@ -1,3 +1,5 @@
+import geocodeAddress from "../tools/geocoding.js";
+
 const processDocument  = (doc) => ({
       poster: doc.poster || null,
       title: doc.title || null,
@@ -14,20 +16,23 @@ const processDocument  = (doc) => ({
       activity: doc.activity || null,
       horror: doc.horror || null,
       lockRatio: doc.lockRatio || null,
-      reservationNotice: doc.reservationNotice || null
+      reservationNotice: doc.reservationNotice || null,
+      latitude: doc.latitude || null,
+      longitude: doc.longitude || null,
   });
 
-const mongodbInsertData = async (bid, data, collection) => {
-  const processedData = data.map(doc => processDocument(doc));
-
-  const existingDataCount = await collection.countDocuments({ bid: bid });
-
-  if (isDataExist(existingDataCount)) {
-    await collection.updateMany({ bid: bid }, { $set: processedData[0] });
-  } else {
-    await collection.insertMany(processedData);
-  }
-};
+  const mongodbInsertData = async (bid, data, collection) => {
+    const processedData = data.map(doc => processDocument(doc));
+  
+    const existingDataCount = await collection.countDocuments({ bid: bid });
+  
+    if (isDataExist(existingDataCount)) {
+      await collection.updateMany({ bid: bid }, { $set: processedData[0] });
+    } else {
+      await collection.insertMany(processedData);
+    }
+  };
+  
 
 const isDataExist = (existingDataCount) => existingDataCount > 0;
 

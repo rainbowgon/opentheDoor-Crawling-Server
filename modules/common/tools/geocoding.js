@@ -22,3 +22,4 @@ const geocodeAddress = async (address) => {
   }
 };
 
+export default geocodeAddress;

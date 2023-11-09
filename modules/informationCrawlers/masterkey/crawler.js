@@ -1,6 +1,7 @@
 import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
 import { createPage } from "../../common/tools/fetch.js";
+import geocodeAddress from "../../common/tools/geocoding.js";
 import { createInsertDataTask } from "../../common/tools/taskCreator.js";
 
 const crawlAllPages = async (bids, browser, collection, redisClient) => {
@@ -89,7 +90,9 @@ const crawlCurrentPage = async (page) => {
         left: [],
         right: [],
         box3InnerHTML: "",
-        reservationNotice: "" 
+        reservationNotice: "", 
+        latitude: "",
+        longitude: "",
       };
 
       const box3Inner = document.querySelector('.box3-inner');
@@ -99,8 +102,6 @@ const crawlCurrentPage = async (page) => {
           const rightTexts = Array.from(box3Inner.querySelectorAll('.right')).map(el => el.innerText.trim()).join(' ');
           results.reservationNotice = leftTexts + " " + rightTexts;
         }
-
-    
 
     const box3Inner3 = document.querySelector('.box3-inner3');
     if (box3Inner3) {
@@ -117,24 +118,29 @@ const crawlCurrentPage = async (page) => {
        if (addressMatch && addressMatch[1]) {
          results.location = addressMatch[1];
        }
-     }
-    
-  
-     
+      }
+
       return results;
     });
+
+    if (tab2Results.location) { // location 값이 있을 때만 지오코딩을 실행합니다.
+      const geocodeResult = await geocodeAddress(tab2Results.location);
+      if (geocodeResult) {
+        tab2Results.latitude = geocodeResult.latitude;
+        tab2Results.longitude = geocodeResult.longitude;
+      }
+    }
 
     const combinedResults = tab1Results.map(item => ({
       ...item,
       tel: tab2Results.tel,
       location: tab2Results.location,
-      reservationNotice: tab2Results.reservationNotice 
+      reservationNotice: tab2Results.reservationNotice,
+      latitude: tab2Results.latitude,
+      longitude: tab2Results.longitude
     }));
   
-
     return combinedResults;
   };
-
-  
 
 export default crawlAllPages;
