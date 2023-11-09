@@ -103,8 +103,6 @@ const crawlCurrentPage = async (page) => {
           results.reservationNotice = leftTexts + " " + rightTexts;
         }
 
-    
-
     const box3Inner3 = document.querySelector('.box3-inner3');
     if (box3Inner3) {
       const contactInfoText = box3Inner3.innerText.trim();
@@ -132,7 +130,7 @@ const crawlCurrentPage = async (page) => {
         tab2Results.longitude = geocodeResult.longitude;
       }
     }
-    
+
     const combinedResults = tab1Results.map(item => ({
       ...item,
       tel: tab2Results.tel,
@@ -142,10 +140,7 @@ const crawlCurrentPage = async (page) => {
       longitude: tab2Results.longitude
     }));
   
-
     return combinedResults;
   };
-
-  
 
 export default crawlAllPages;
