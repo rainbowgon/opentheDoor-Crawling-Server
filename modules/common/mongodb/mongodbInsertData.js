@@ -1,26 +1,5 @@
 import geocodeAddress from "../tools/geocoding.js";
 
-function getGeocodeForLocation(location) {
-  // 주소를 공백으로 나눕니다.
-  const parts = location.split(' ');
-
-  // 숫자 2자리가 나오는 부분까지의 주소를 찾습니다.
-  let addressForGeocoding = '';
-  for (const part of parts) {
-    addressForGeocoding += part + ' ';
-    if (part.match(/^\d{2}$/)) {
-      // 숫자 2자리를 발견하면 반복을 멈춥니다.
-      break;
-    }
-  }
-
-  // 추출된 주소를 트림하여 마지막 공백을 제거합니다.
-  addressForGeocoding = addressForGeocoding.trim();
-
-  // 추출된 주소로 지오코딩을 수행합니다.
-  return addressForGeocoding;
-}
-
 const processDocument  = (doc) => ({
       poster: doc.poster || null,
       title: doc.title || null,
