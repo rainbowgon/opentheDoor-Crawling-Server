@@ -2,7 +2,9 @@ import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
 import { createPage } from "../../common/tools/fetch.js";
 import geocodeAddress from "../../common/tools/geocoding.js";
+import uploadImageToS3 from "../../common/tools/imageUploader.js";
 import { createInsertDataTask } from "../../common/tools/taskCreator.js";
+
 
 const crawlAllPages = async (bids, browser, collection, redisClient) => {
   const page = await createPage(browser);
@@ -58,7 +60,7 @@ const crawlCurrentPage = async (page) => {
       const headcount = spanTags[1]?.innerText.match(/(\d~\d명)/)?.[1] || "".split("~");
       const minHeadcount = parseInt(headcount[0], 10);
       const maxHeadcount = parseInt(headcount[2], 10);
-
+  
       results.push({
         venue,
         title,
@@ -73,6 +75,16 @@ const crawlCurrentPage = async (page) => {
 
     return results;
   });
+
+  // tab1Results를 순회하면서 이미지를 업로드하고 URL을 업데이트합니다.
+  for (const result of tab1Results) {
+    if (result.poster) {
+      // 이미지를 S3에 업로드하는 로직을 추가합니다.
+      // AWS SDK는 Node.js 환경에서 사용 가능합니다.
+      const uploadedImageUrl = await uploadImageToS3(result.poster,result.title);
+      result.poster = uploadedImageUrl;
+    }
+  }
 
     // tab2를 클릭하기 전에, evaluate를 빠져나와야 합니다.
     await page.click('#tab2'); // tab2를 클릭합니다.
