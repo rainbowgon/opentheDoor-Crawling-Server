@@ -1,5 +1,3 @@
-import geocodeAddress from "../tools/geocoding.js";
-
 const processDocument  = (doc) => ({
       poster: doc.poster || null,
       title: doc.title || null,
