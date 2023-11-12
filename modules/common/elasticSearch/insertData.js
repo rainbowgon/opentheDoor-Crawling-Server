@@ -14,16 +14,32 @@ const esInsertData = async (data) => {
       explanation: doc.explanation || null,
       level: doc.level || null,
       timeLimit: doc.timeLimit || null,
-      price: doc.price || { 2: 22000, 3: 20000, 4: 18000},
+      priceList: doc.priceList ||     
+                            [
+                              {
+                                  "headcount": 2,
+                                  "price": 22000
+                              },
+                              {
+                                  "headcount": 3,
+                                  "price": 20000
+                              },
+                              {
+                                  "headcount": 4,
+                                  "price": 18000
+                              }
+                            ],
       minHeadcount: doc.minHeadcount || null,
       maxHeadcount: doc.maxHeadcount || null,
       genre: doc.genre || null,
       activity: doc.activity || null,
       horror: doc.horror || null,
       lockRatio: doc.lockRatio || null,
-      reservationNotice: doc.reservationNotice || null,
+      venueToS : doc.venueToS  || null,
+      siteToS: doc.siteToS || null,
       latitude: doc.latitude || null,
-      longitude: doc.longitude || null,
+      longitude: doc.longitude || null
+
     };
   });
 

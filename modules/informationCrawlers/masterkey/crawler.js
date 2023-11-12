@@ -66,6 +66,12 @@ const crawlCurrentPage = async (page) => {
       if (headcountMatch && headcountMatch[1] && headcountMatch[2]) {
           const parsedMin = parseInt(headcountMatch[1], 10);
           const parsedMax = parseInt(headcountMatch[2], 10);
+          
+          if (!isNaN(parsedMin) && !isNaN(parsedMax)) {
+            // parsedMin과 parsedMax의 값으로 minHeadcount와 maxHeadcount 업데이트
+            minHeadcount = parsedMin;
+            maxHeadcount = parsedMax;
+        }
       }
       
       results.push({
@@ -84,14 +90,14 @@ const crawlCurrentPage = async (page) => {
   });
 
   // tab1Results를 순회하면서 이미지를 업로드하고 URL을 업데이트합니다.
-  // for (const result of tab1Results) {
-  //   if (result.poster) {
-  //     // 이미지를 S3에 업로드하는 로직을 추가합니다.
-  //     // AWS SDK는 Node.js 환경에서 사용 가능합니다.
-  //     const uploadedImageUrl = await uploadImageToS3(result.poster,result.title);
-  //     result.poster = uploadedImageUrl;
-  //   }
-  // }
+  for (const result of tab1Results) {
+    if (result.poster) {
+      // 이미지를 S3에 업로드하는 로직을 추가합니다.
+      // AWS SDK는 Node.js 환경에서 사용 가능합니다.
+      const uploadedImageUrl = await uploadImageToS3(result.poster,result.title);
+      result.poster = uploadedImageUrl;
+    }
+  }
 
     // tab2를 클릭하기 전에, evaluate를 빠져나와야 합니다.
     await page.click('#tab2'); // tab2를 클릭합니다.
@@ -109,7 +115,7 @@ const crawlCurrentPage = async (page) => {
         left: [],
         right: [],
         box3InnerHTML: "",
-        reservationNotice: "", 
+        venueToS : "", 
         latitude: "",
         longitude: "",
       };
@@ -119,7 +125,7 @@ const crawlCurrentPage = async (page) => {
         if (box3Inner) {
           const leftTexts = Array.from(box3Inner.querySelectorAll('.left')).map(el => el.innerText.trim()).join(' ');
           const rightTexts = Array.from(box3Inner.querySelectorAll('.right')).map(el => el.innerText.trim()).join(' ');
-          results.reservationNotice = leftTexts + " " + rightTexts;
+          results.venueToS  = leftTexts + " " + rightTexts;
         }
 
     const box3Inner3 = document.querySelector('.box3-inner3');
@@ -142,19 +148,19 @@ const crawlCurrentPage = async (page) => {
       return results;
     });
 
-    // if (tab2Results.location) { // location 값이 있을 때만 지오코딩을 실행합니다.
-    //   const geocodeResult = await geocodeAddress(tab2Results.location);
-    //   if (geocodeResult) {
-    //     tab2Results.latitude = geocodeResult.latitude;
-    //     tab2Results.longitude = geocodeResult.longitude;
-    //   }
-    // }
+    if (tab2Results.location) { // location 값이 있을 때만 지오코딩을 실행합니다.
+      const geocodeResult = await geocodeAddress(tab2Results.location);
+      if (geocodeResult) {
+        tab2Results.latitude = geocodeResult.latitude;
+        tab2Results.longitude = geocodeResult.longitude;
+      }
+    }
 
     const combinedResults = tab1Results.map(item => ({
       ...item,
       tel: tab2Results.tel,
       location: tab2Results.location,
-      reservationNotice: tab2Results.reservationNotice,
+      venueToS : tab2Results.venueToS ,
       latitude: tab2Results.latitude,
       longitude: tab2Results.longitude
     }));
