@@ -17,5 +17,5 @@ else
     echo "Image does not exist locally"
 fi
 
-docker build -t "$IMAGE" "$ROOT_PATH"
+docker build -t "$IMAGE" .
 docker run -dp 80:80 --name "$CONTAINER" "$IMAGE"
