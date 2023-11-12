@@ -57,10 +57,17 @@ const crawlCurrentPage = async (page) => {
       const levelText = spanTags[0]?.innerText || "";
       const keySymbol = "🔑"; // Define the key symbol
       const level = levelText.split(keySymbol).length - 1; // Count the occurrences of the key symbol
-      const headcount = spanTags[1]?.innerText.match(/(\d~\d명)/)?.[1] || "".split("~");
-      const minHeadcount = parseInt(headcount[0], 10);
-      const maxHeadcount = parseInt(headcount[2], 10);
-  
+      const headcountText = spanTags[1]?.innerText;
+      const headcountMatch = headcountText.match(/(\d+)~(\d+)(인)?명/);
+      
+      let minHeadcount = 1; // 기본값으로 0 설정
+      let maxHeadcount = 10; // 기본값으로 10 설정
+      
+      if (headcountMatch && headcountMatch[1] && headcountMatch[2]) {
+          const parsedMin = parseInt(headcountMatch[1], 10);
+          const parsedMax = parseInt(headcountMatch[2], 10);
+      }
+      
       results.push({
         venue,
         title,
@@ -77,14 +84,14 @@ const crawlCurrentPage = async (page) => {
   });
 
   // tab1Results를 순회하면서 이미지를 업로드하고 URL을 업데이트합니다.
-  for (const result of tab1Results) {
-    if (result.poster) {
-      // 이미지를 S3에 업로드하는 로직을 추가합니다.
-      // AWS SDK는 Node.js 환경에서 사용 가능합니다.
-      const uploadedImageUrl = await uploadImageToS3(result.poster,result.title);
-      result.poster = uploadedImageUrl;
-    }
-  }
+  // for (const result of tab1Results) {
+  //   if (result.poster) {
+  //     // 이미지를 S3에 업로드하는 로직을 추가합니다.
+  //     // AWS SDK는 Node.js 환경에서 사용 가능합니다.
+  //     const uploadedImageUrl = await uploadImageToS3(result.poster,result.title);
+  //     result.poster = uploadedImageUrl;
+  //   }
+  // }
 
     // tab2를 클릭하기 전에, evaluate를 빠져나와야 합니다.
     await page.click('#tab2'); // tab2를 클릭합니다.
@@ -135,13 +142,13 @@ const crawlCurrentPage = async (page) => {
       return results;
     });
 
-    if (tab2Results.location) { // location 값이 있을 때만 지오코딩을 실행합니다.
-      const geocodeResult = await geocodeAddress(tab2Results.location);
-      if (geocodeResult) {
-        tab2Results.latitude = geocodeResult.latitude;
-        tab2Results.longitude = geocodeResult.longitude;
-      }
-    }
+    // if (tab2Results.location) { // location 값이 있을 때만 지오코딩을 실행합니다.
+    //   const geocodeResult = await geocodeAddress(tab2Results.location);
+    //   if (geocodeResult) {
+    //     tab2Results.latitude = geocodeResult.latitude;
+    //     tab2Results.longitude = geocodeResult.longitude;
+    //   }
+    // }
 
     const combinedResults = tab1Results.map(item => ({
       ...item,

@@ -7,7 +7,7 @@ const processDocument  = (doc) => ({
       explanation: doc.explanation || null,
       level: doc.level || null,
       timeLimit: doc.timeLimit || null,
-      price: doc.price || null,
+      price: doc.price ||  {2: 22000, 3: 20000, 4: 18000},
       minHeadcount: doc.minHeadcount || null,
       maxHeadcount: doc.maxHeadcount || null,
       genre: doc.genre || null,
