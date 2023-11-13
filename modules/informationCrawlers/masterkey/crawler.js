@@ -33,7 +33,8 @@ const crawlSinglePage = async (page, bid, collection) => {
   const data = await crawlCurrentPage(page);
 
   await esInsertData(data);
-  const task = createInsertDataTask(VENUE, bid, data, collection); // Redis 작업을 프로미스로 래핑
+  await mongodbInsertData(bid, data, collection);
+
   return task;
 };
 
