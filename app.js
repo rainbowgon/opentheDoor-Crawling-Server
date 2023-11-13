@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+console.log(process.env.MONGODB_URL);
+
 import run from "./modules/informationCrawlers/masterkey/run.js";
 import express from "express";
 import http from "http";
