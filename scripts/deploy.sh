@@ -18,10 +18,4 @@ else
 fi
 
 docker build -t "$IMAGE" .
- docker run -i --init --rm --cap-add=SYS_ADMIN \
-   --name "$CONTAINER" "$IMAGE" \
-   -dp 80:3000 \
-   npm run start
-
-
-# docker run -dp 80:3000 --name "$CONTAINER" "$IMAGE"
+docker run -dp 80:3000 --name "$CONTAINER" "$IMAGE"
