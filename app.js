@@ -6,8 +6,11 @@ import run from "./modules/informationCrawlers/masterkey/run.js";
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";
+import { MONGODB_URL } from "./modules/common/config/env.js";
 
 const app = express();
+
+console.log(MONGODB_URL);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 // app.use("/public", express.static(__dirname + "/public"));
