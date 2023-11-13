@@ -1,9 +1,9 @@
-import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
+import { createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
+import mongodbInsertData from "../../common/mongodb/mongodbInsertData.js";
 import { createPage } from "../../common/tools/fetch.js";
 import geocodeAddress from "../../common/tools/geocoding.js";
 import uploadImageToS3 from "../../common/tools/imageUploader.js";
-import { createInsertDataTask } from "../../common/tools/taskCreator.js";
 
 const crawlAllPages = async (bids, browser, collection) => {
   const page = await createPage(browser);

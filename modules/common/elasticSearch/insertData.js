@@ -4,7 +4,7 @@ import { ELASTIC_SEARCH_URL, INDEX_NAME } from "../config/env.js";
 const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
 const esInsertData = async (data) => {
-  const processedData = data.map(doc => {
+  const processedData = data.map((doc) => {
     return {
       poster: doc.poster || null,
       title: doc.title || null,
@@ -32,4 +32,3 @@ const esInsertData = async (data) => {
 };
 
 export default esInsertData;
-
