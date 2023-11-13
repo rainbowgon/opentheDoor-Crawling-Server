@@ -33,18 +33,17 @@ const processDocument  = (doc) => ({
       longitude: doc.longitude || null,
   });
 
-  const mongodbInsertData = async (bid, data, collection) => {
-    const processedData = data.map(doc => processDocument(doc));
-  
-    const existingDataCount = await collection.countDocuments({ bid: bid });
-  
-    if (isDataExist(existingDataCount)) {
-      await collection.updateMany({ bid: bid }, { $set: processedData[0] });
-    } else {
-      await collection.insertMany(processedData);
-    }
-  };
-  
+const mongodbInsertData = async (bid, data, collection) => {
+  const processedData = data.map((doc) => processDocument(doc));
+
+  const existingDataCount = await collection.countDocuments({ bid: bid });
+
+  if (isDataExist(existingDataCount)) {
+    await collection.updateMany({ bid: bid }, { $set: processedData[0] });
+  } else {
+    await collection.insertMany(processedData);
+  }
+};
 
 const isDataExist = (existingDataCount) => existingDataCount > 0;
 

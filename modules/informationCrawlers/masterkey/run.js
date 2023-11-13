@@ -16,7 +16,6 @@ const PARALLEL_BATCH_SIZE = 4;
 const run = async () => {
   const browser = await createBrowser();
   const mongoDbClient = new MongoClient(MONGODB_URL);
-  const redisClient = new Redis({ url: REDIS_URL }); // Redis 클라이언트 생성
 
   try {
     await mongoDbClient.connect();
@@ -29,7 +28,7 @@ const run = async () => {
     const tasks = [];
     for (let i = 0; i < BID_LIST.length; i += PARALLEL_BATCH_SIZE) {
       const batch = BID_LIST.slice(i, i + PARALLEL_BATCH_SIZE); // 병렬처리를 위해 설정
-      tasks.push(crawlAllPages(batch, browser, collection, redisClient));
+      tasks.push(crawlAllPages(batch, browser, collection));
     }
 
     await Promise.all(tasks);
@@ -40,7 +39,6 @@ const run = async () => {
   } finally {
     await browser.close();
     await mongoDbClient.close();
-    redisClient.quit();
   }
 };
 
