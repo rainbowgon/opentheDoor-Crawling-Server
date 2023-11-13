@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 import run from "./modules/informationCrawlers/masterkey/run.js";
 import express from "express";
 import http from "http";
