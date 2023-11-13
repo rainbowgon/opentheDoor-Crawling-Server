@@ -2,7 +2,7 @@ import puppeteer from "puppeteer";
 
 const createBrowser = async () =>
   puppeteer.launch({
-    headless: "new", // 헤드리스 브라우저 사용(리소스 감소)
+    // headless: "new", // 헤드리스 브라우저 사용(리소스 감소)
     args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   });
 
