@@ -16,6 +16,7 @@ const server = http.createServer(app);
 const PORT = 3000;
 
 app.get("/info/masterkey", async (req, res) => {
+  console.log("LISTENING...... /info/masterkey");
   const isSucceed = await run();
   res.json({
     success: isSucceed,
