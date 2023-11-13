@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
 import run from "./modules/informationCrawlers/masterkey/run.js";
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";
+
+dotenv.config();
 
 const app = express();
 

@@ -9,7 +9,7 @@ const PARALLEL_BATCH_SIZE = 4;
 
 const run = async () => {
   const browser = await createBrowser();
-  const mongoDbClient = new MongoClient(MONGODB_URL, { useNewUrlParser: true });
+  const mongoDbClient = new MongoClient(MONGODB_URL);
 
   try {
     await mongoDbClient.connect();
