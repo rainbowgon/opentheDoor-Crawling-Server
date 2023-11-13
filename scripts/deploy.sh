@@ -19,3 +19,4 @@ fi
 
 docker build -t "$IMAGE" .
 docker run -dp 80:3000 --name "$CONTAINER" "$IMAGE"
+cat .env
