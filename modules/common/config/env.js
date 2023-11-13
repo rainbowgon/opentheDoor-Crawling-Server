@@ -1,7 +1,3 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 export const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL;
 export const REDIS_URL = process.env.REDIS_URL;
 export const MONGODB_URL = process.env.MONGODB_URL;
