@@ -1,12 +1,13 @@
 import { Client } from "@elastic/elasticsearch";
 import { ELASTIC_SEARCH_URL, INDEX_NAME } from "../config/env.js";
 
-const esInsertData = async (data) => {
+const esInsertData = async (data, url) => {
   const esClient = new Client({ node: ELASTIC_SEARCH_URL });
 
   const processedData = data.map((doc) => {
     return {
       poster: doc.poster || null,
+      themeURL: url || null,
       title: doc.title || null,
       venue: "마스터키 " + doc.venue || null,
       location: doc.location || null,

@@ -32,8 +32,8 @@ const crawlSinglePage = async (page, bid, collection) => {
 
   const data = await crawlCurrentPage(page);
 
-  await esInsertData(data);
-  await mongodbInsertData(bid, data, collection);
+  await esInsertData(data,url);
+  await mongodbInsertData(bid, data, collection, url);
 
   return data;
 };
@@ -95,18 +95,18 @@ const crawlCurrentPage = async (page) => {
     return results;
   });
 
-  // tab1Results를 순회하면서 이미지를 업로드하고 URL을 업데이트합니다.
-  for (const result of tab1Results) {
-    if (result.poster) {
-      // 이미지를 S3에 업로드하는 로직을 추가합니다.
-      // AWS SDK는 Node.js 환경에서 사용 가능합니다.
-      const uploadedImageUrl = await uploadImageToS3(
-        result.poster,
-        result.title
-      );
-      result.poster = uploadedImageUrl;
-    }
-  }
+  // // tab1Results를 순회하면서 이미지를 업로드하고 URL을 업데이트합니다.
+  // for (const result of tab1Results) {
+  //   if (result.poster) {
+  //     // 이미지를 S3에 업로드하는 로직을 추가합니다.
+  //     // AWS SDK는 Node.js 환경에서 사용 가능합니다.
+  //     const uploadedImageUrl = await uploadImageToS3(
+  //       result.poster,
+  //       result.title
+  //     );
+  //     result.poster = uploadedImageUrl;
+  //   }
+  // }
 
   // tab2를 클릭하기 전에, evaluate를 빠져나와야 합니다.
   await page.click("#tab2"); // tab2를 클릭합니다.

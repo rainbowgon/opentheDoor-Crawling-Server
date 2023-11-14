@@ -1,5 +1,6 @@
-const processDocument = (doc) => ({
+const processDocument = (doc,url) => ({
   poster: doc.poster || null,
+  themeURL: url || null,
   title: doc.title || null,
   venue: "마스터키 " + doc.venue || null,
   location: doc.location || null,
@@ -30,10 +31,11 @@ const processDocument = (doc) => ({
   venueToS: doc.venueToS || null,
   latitude: doc.latitude || null,
   longitude: doc.longitude || null,
+  
 });
 
-const mongodbInsertData = async (bid, data, collection) => {
-  const processedData = data.map((doc) => processDocument(doc));
+const mongodbInsertData = async (bid, data, collection,url) => {
+  const processedData = data.map((doc) => processDocument(doc,url));
 
   const existingDataCount = await collection.countDocuments({ bid: bid });
 
