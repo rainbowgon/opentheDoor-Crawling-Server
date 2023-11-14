@@ -2,6 +2,7 @@ import { createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
 import mongodbInsertData from "../../common/mongodb/mongodbInsertData.js";
 import { createPage } from "../../common/tools/fetch.js";
+import geocodeAddress from "../../common/tools/geocoding.js";
 import uploadImageToS3 from "../../common/tools/imageUploader.js";
 
 const crawlAllPages = async (bids, browser, collection) => {
@@ -34,7 +35,7 @@ const crawlSinglePage = async (page, bid, collection) => {
   await esInsertData(data);
   await mongodbInsertData(bid, data, collection);
 
-  return task;
+  return data;
 };
 
 const crawlCurrentPage = async (page) => {
@@ -46,12 +47,19 @@ const crawlCurrentPage = async (page) => {
     const venue = document.querySelector(".theme-title")?.innerText || "";
     // 크롤링 해오는 부분
     box2InnerDivs.forEach((div) => {
-      const title = div.querySelector(".left.room_explanation_go .title")?.innerText || "";
-      const explanation = div.querySelector(".left.room_explanation_go")?.dataset.text || "";
+      const title =
+        div.querySelector(".left.room_explanation_go .title")?.innerText || "";
+      const explanation =
+        div.querySelector(".left.room_explanation_go")?.dataset.text || "";
       const poster = div.querySelector("img")?.src || "";
-      const genre = div.querySelector(".right .info .hashtags")?.innerText || "";
-      const genreArray = genre.split(" ").map((tag) => tag.replace(/#/g, "").trim()); // Split the text by '#' and trim each item
-      const spanTags = div.querySelector(".right .info").querySelectorAll("span");
+      const genre =
+        div.querySelector(".right .info .hashtags")?.innerText || "";
+      const genreArray = genre
+        .split(" ")
+        .map((tag) => tag.replace(/#/g, "").trim()); // Split the text by '#' and trim each item
+      const spanTags = div
+        .querySelector(".right .info")
+        .querySelectorAll("span");
       const levelText = spanTags[0]?.innerText || "";
       const keySymbol = "🔑"; // Define the key symbol
       const level = levelText.split(keySymbol).length - 1; // Count the occurrences of the key symbol
@@ -92,7 +100,10 @@ const crawlCurrentPage = async (page) => {
     if (result.poster) {
       // 이미지를 S3에 업로드하는 로직을 추가합니다.
       // AWS SDK는 Node.js 환경에서 사용 가능합니다.
-      const uploadedImageUrl = await uploadImageToS3(result.poster, result.title);
+      const uploadedImageUrl = await uploadImageToS3(
+        result.poster,
+        result.title
+      );
       result.poster = uploadedImageUrl;
     }
   }
@@ -103,8 +114,12 @@ const crawlCurrentPage = async (page) => {
   await Promise.race([
     page.waitForFunction(
       () =>
-        document.querySelector('a[href="#tab1"]').classList.contains("active") ||
-        document.querySelector("div#tab2.tab-content").classList.contains("active")
+        document
+          .querySelector('a[href="#tab1"]')
+          .classList.contains("active") ||
+        document
+          .querySelector("div#tab2.tab-content")
+          .classList.contains("active")
     ),
     page.waitForTimeout(3000), // 최대 3000ms까지 기다립니다.
   ]);
@@ -131,16 +146,6 @@ const crawlCurrentPage = async (page) => {
       results.venueToS = leftTexts + " " + rightTexts;
     }
 
-    if (box3Inner) {
-      const leftTexts = Array.from(box3Inner.querySelectorAll(".left"))
-        .map((el) => el.innerText.trim())
-        .join(" ");
-      const rightTexts = Array.from(box3Inner.querySelectorAll(".right"))
-        .map((el) => el.innerText.trim())
-        .join(" ");
-      results.reservationNotice = leftTexts + " " + rightTexts;
-    }
-
     const box3Inner3 = document.querySelector(".box3-inner3");
     if (box3Inner3) {
       const contactInfoText = box3Inner3.innerText.trim();
@@ -157,18 +162,28 @@ const crawlCurrentPage = async (page) => {
         results.location = addressMatch[1];
       }
     }
-
-    const combinedResults = tab1Results.map((item) => ({
-      ...item,
-      tel: tab2Results.tel,
-      location: tab2Results.location,
-      venueToS: tab2Results.venueToS,
-      latitude: tab2Results.latitude,
-      longitude: tab2Results.longitude,
-    }));
-
-    return combinedResults;
+    return results;
   });
+
+  if (tab2Results.location) {
+    // location 값이 있을 때만 지오코딩을 실행합니다.
+    const geocodeResult = await geocodeAddress(tab2Results.location);
+    if (geocodeResult) {
+      tab2Results.latitude = geocodeResult.latitude;
+      tab2Results.longitude = geocodeResult.longitude;
+    }
+  }
+
+  const combinedResults = tab1Results.map((item) => ({
+    ...item,
+    tel: tab2Results.tel,
+    location: tab2Results.location,
+    venueToS: tab2Results.venueToS,
+    latitude: tab2Results.latitude,
+    longitude: tab2Results.longitude,
+  }));
+
+  return combinedResults;
 };
 
 export default crawlAllPages;
