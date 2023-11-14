@@ -2,7 +2,6 @@ import { createTargetUrl } from "../../common/config/masterkey.js";
 import esInsertData from "../../common/elasticSearch/insertData.js";
 import mongodbInsertData from "../../common/mongodb/mongodbInsertData.js";
 import { createPage } from "../../common/tools/fetch.js";
-import geocodeAddress from "../../common/tools/geocoding.js";
 import uploadImageToS3 from "../../common/tools/imageUploader.js";
 
 const crawlAllPages = async (bids, browser, collection) => {
@@ -47,19 +46,12 @@ const crawlCurrentPage = async (page) => {
     const venue = document.querySelector(".theme-title")?.innerText || "";
     // 크롤링 해오는 부분
     box2InnerDivs.forEach((div) => {
-      const title =
-        div.querySelector(".left.room_explanation_go .title")?.innerText || "";
-      const explanation =
-        div.querySelector(".left.room_explanation_go")?.dataset.text || "";
+      const title = div.querySelector(".left.room_explanation_go .title")?.innerText || "";
+      const explanation = div.querySelector(".left.room_explanation_go")?.dataset.text || "";
       const poster = div.querySelector("img")?.src || "";
-      const genre =
-        div.querySelector(".right .info .hashtags")?.innerText || "";
-      const genreArray = genre
-        .split(" ")
-        .map((tag) => tag.replace(/#/g, "").trim()); // Split the text by '#' and trim each item
-      const spanTags = div
-        .querySelector(".right .info")
-        .querySelectorAll("span");
+      const genre = div.querySelector(".right .info .hashtags")?.innerText || "";
+      const genreArray = genre.split(" ").map((tag) => tag.replace(/#/g, "").trim()); // Split the text by '#' and trim each item
+      const spanTags = div.querySelector(".right .info").querySelectorAll("span");
       const levelText = spanTags[0]?.innerText || "";
       const keySymbol = "🔑"; // Define the key symbol
       const level = levelText.split(keySymbol).length - 1; // Count the occurrences of the key symbol
@@ -100,10 +92,7 @@ const crawlCurrentPage = async (page) => {
     if (result.poster) {
       // 이미지를 S3에 업로드하는 로직을 추가합니다.
       // AWS SDK는 Node.js 환경에서 사용 가능합니다.
-      const uploadedImageUrl = await uploadImageToS3(
-        result.poster,
-        result.title
-      );
+      const uploadedImageUrl = await uploadImageToS3(result.poster, result.title);
       result.poster = uploadedImageUrl;
     }
   }
@@ -114,12 +103,8 @@ const crawlCurrentPage = async (page) => {
   await Promise.race([
     page.waitForFunction(
       () =>
-        document
-          .querySelector('a[href="#tab1"]')
-          .classList.contains("active") ||
-        document
-          .querySelector("div#tab2.tab-content")
-          .classList.contains("active")
+        document.querySelector('a[href="#tab1"]').classList.contains("active") ||
+        document.querySelector("div#tab2.tab-content").classList.contains("active")
     ),
     page.waitForTimeout(3000), // 최대 3000ms까지 기다립니다.
   ]);
