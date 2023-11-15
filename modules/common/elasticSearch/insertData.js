@@ -7,7 +7,8 @@ const esInsertData = async (data, url) => {
   const processedData = data.map((doc) => {
     return {
       poster: doc.poster || null,
-      themeURL: url || null,
+      originalURL: url || null,
+      originalPoster: doc.originalPoster || null,
       title: doc.title || null,
       venue: "마스터키 " + doc.venue || null,
       location: doc.location || null,
@@ -42,7 +43,10 @@ const esInsertData = async (data, url) => {
     };
   });
 
-  const body = processedData.flatMap((doc) => [{ index: { _index: INDEX_NAME } }, doc]);
+  const body = processedData.flatMap((doc) => [
+    { index: { _index: INDEX_NAME } },
+    doc,
+  ]);
   await esClient.bulk({ refresh: true, body });
 };
 
