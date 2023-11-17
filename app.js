@@ -1,4 +1,4 @@
-import run from "./modules/informationCrawlers/masterkey/run.js";
+import run from "./src/informationCrawlers/masterkey/run.js";
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";
