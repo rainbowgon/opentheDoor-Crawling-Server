@@ -9,6 +9,7 @@ const crawlAllTimes = async (bids, browser, redisClient) => {
   for (const bid of bids) {
     const task = await crawlSinglePage(page, bid, redisClient);
     tasks.push(task);
+    break;
   }
 
   await page.close();
@@ -26,8 +27,8 @@ const crawlSinglePage = async (page, bid, redisClient) => {
     return;
   }
 
-  const data = await crawlCurrentPage(page);
-  const task = createInsertDataTask(VENUE, bid, data, redisClient); // Redis 작업을 프로미스로 래핑
+  const results = await crawlCurrentPage(page);
+  const task = createInsertDataTask(VENUE, bid, results, redisClient); // Redis 작업을 프로미스로 래핑
   return task;
 };
 
@@ -39,6 +40,7 @@ const crawlCurrentPage = async (page) =>
     const box2InnerDivs = bookingListDiv.querySelectorAll(".box2-inner");
 
     box2InnerDivs.forEach((div) => {
+      const themeTitle = div.querySelector(".left.room_explanation_go .title")?.innerText || "";
       const pTags = div.querySelectorAll("p");
       const timePossibleList = [];
       pTags.forEach((pTag) => {
@@ -50,6 +52,7 @@ const crawlCurrentPage = async (page) =>
       });
 
       results.push({
+        themeTitle,
         timePossibleList,
       });
     });

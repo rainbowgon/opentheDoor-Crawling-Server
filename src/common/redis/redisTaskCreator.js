@@ -1,33 +1,37 @@
-import { createHash, createHashKey } from "../tools/hashCreator.js";
+import { createHashKey } from "../tools/hashCreator.js";
 
-const createInsertDataTask = (venue, bid, data, redisClient) => {
-  const hash = createHash(data);
-  const HASH_KEY = createHashKey(venue, bid);
+const createInsertDataTask = (venue, bid, results, redisClient) => {
+  for (const result of results) {
+    const { themeTitle, timePossibleList } = result;
+    // const HASH_KEY = createHashKey(venue, bid);
 
-  return new Promise((resolve, reject) => {
-    redisClient.get(HASH_KEY, async (error, previousHash) => {
-      if (error) {
-        console.error(error);
-        return reject(error);
-      }
+    console.log(timePossibleList);
 
-      if (isNotChanged(previousHash, hash)) {
-        resolve();
-        return;
-      }
-
-      redisClient.set(HASH_KEY, hash, async (error) => {
+    return new Promise((resolve, reject) => {
+      redisClient.get(themeTitle, async (error, previousData) => {
         if (error) {
           console.error(error);
           return reject(error);
         }
 
-        resolve();
+        if (isNotChanged(previousData, timePossibleList)) {
+          resolve();
+          return;
+        }
+
+        redisClient.hmset(themeTitle, ...timePossibleList, async (error) => {
+          if (error) {
+            console.error(error);
+            return reject(error);
+          }
+
+          resolve();
+        });
       });
     });
-  });
+  }
 };
 
-const isNotChanged = (previousHash, currentHash) => previousHash && previousHash === currentHash;
+const isNotChanged = (previous, current) => previous && previous === current;
 
 export { createInsertDataTask };
