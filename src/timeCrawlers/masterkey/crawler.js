@@ -1,5 +1,6 @@
 import { VENUE, createTargetUrl } from "../../common/config/masterkey";
 import { createPage } from "../../common/tools/fetch";
+import { createInsertDataTask } from "../../common/tools/taskCreator";
 
 const crawlAllTimes = async (bids, browser, collection, redisClient) => {
   const page = await createPage(browser);
@@ -27,7 +28,7 @@ const crawlSinglePage = async (page, bid, collection, redisClient) => {
 
   const data = await crawlCurrentPage(page);
   await esInsertData(data);
-  const task = createInsertTask(VENUE, bid, data, collection, redisClient); // Redis 작업을 프로미스로 래핑
+  const task = createInsertDataTask(VENUE, bid, data, collection, redisClient); // Redis 작업을 프로미스로 래핑
   return task;
 };
 
