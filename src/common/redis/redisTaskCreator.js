@@ -1,7 +1,6 @@
-import mongodbInsertData from "../mongodb/mongodbInsertData.js";
-import { createHash, createHashKey } from "./hashCreator.js";
+import { createHash, createHashKey } from "../tools/hashCreator.js";
 
-const createInsertDataTask = (venue, bid, data, collection, redisClient) => {
+const createInsertDataTask = (venue, bid, data, redisClient) => {
   const hash = createHash(data);
   const HASH_KEY = createHashKey(venue, bid);
 
@@ -22,8 +21,6 @@ const createInsertDataTask = (venue, bid, data, collection, redisClient) => {
           console.error(error);
           return reject(error);
         }
-
-        await mongodbInsertData(bid, data, collection);
 
         resolve();
       });

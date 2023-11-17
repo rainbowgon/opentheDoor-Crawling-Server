@@ -2,9 +2,6 @@ import Redis from "ioredis";
 import { createBrowser } from "../../common/tools/fetch.js";
 import { BID_LIST } from "../../common/config/masterkey.js";
 import crawlAllTimes from "./crawler.js";
-// import { createBrowser } from "../../common/tools/fetch.js";
-// import crawlAllPages from "./crawler.js";
-// import { BID_LIST } from "../../common/config/masterkey.js";
 
 const PARALLEL_BATCH_SIZE = 4;
 
@@ -17,7 +14,7 @@ const run = async () => {
 
     for (let i = 0; i < BID_LIST.length; i += PARALLEL_BATCH_SIZE) {
       const batch = BID_LIST.slice(i, i + PARALLEL_BATCH_SIZE); // 병렬처리를 위해 설정
-      tasks.push(crawlAllTimes(batch, browser, collection, redisClient));
+      tasks.push(crawlAllTimes(batch, browser, redisClient));
     }
 
     await Promise.all(tasks);

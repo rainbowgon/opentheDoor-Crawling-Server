@@ -1,13 +1,13 @@
-import { VENUE, createTargetUrl } from "../../common/config/masterkey";
-import { createPage } from "../../common/tools/fetch";
-import { createInsertDataTask } from "../../common/tools/taskCreator";
+import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
+import { createInsertDataTask } from "../../common/redis/redisTaskCreator.js";
+import { createPage } from "../../common/tools/fetch.js";
 
-const crawlAllTimes = async (bids, browser, collection, redisClient) => {
+const crawlAllTimes = async (bids, browser, redisClient) => {
   const page = await createPage(browser);
   const tasks = [];
 
   for (const bid of bids) {
-    const task = await crawlSinglePage(page, bid, collection, redisClient);
+    const task = await crawlSinglePage(page, bid, redisClient);
     tasks.push(task);
   }
 
@@ -15,7 +15,7 @@ const crawlAllTimes = async (bids, browser, collection, redisClient) => {
   return Promise.all(tasks);
 };
 
-const crawlSinglePage = async (page, bid, collection, redisClient) => {
+const crawlSinglePage = async (page, bid, redisClient) => {
   await page.goto(createTargetUrl(bid));
 
   const isDivExists = await page
@@ -27,8 +27,7 @@ const crawlSinglePage = async (page, bid, collection, redisClient) => {
   }
 
   const data = await crawlCurrentPage(page);
-  await esInsertData(data);
-  const task = createInsertDataTask(VENUE, bid, data, collection, redisClient); // Redis 작업을 프로미스로 래핑
+  const task = createInsertDataTask(VENUE, bid, data, redisClient); // Redis 작업을 프로미스로 래핑
   return task;
 };
 
@@ -39,7 +38,6 @@ const crawlCurrentPage = async (page) =>
     const bookingListDiv = document.getElementById("booking_list");
     const box2InnerDivs = bookingListDiv.querySelectorAll(".box2-inner");
 
-    // 크롤링 해오는 부분
     box2InnerDivs.forEach((div) => {
       const pTags = div.querySelectorAll("p");
       const timePossibleList = [];
