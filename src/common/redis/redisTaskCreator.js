@@ -1,6 +1,7 @@
 import AvailableStatus from "../tools/enum.js";
 import { flattenObjectList, flattenTimeLineObject } from "../tools/flatten.js";
 import { createHash } from "../tools/hashCreator.js";
+import sendNotification from "../tools/sendNotification.js";
 
 const createInsertDataTask = (timeLine, redisClient) => {
   return new Promise(async (resolve, reject) => {
@@ -39,6 +40,10 @@ const checkEmptyTimeSlot = (previousTimeLine, currentTimeLine) => {
 
         if (validateDateTime(previousTimeLine, currentTimeLine, dateKey, timeKey)) {
           // 빈자리 알림
+          const timeLineId = currentTimeLine["timeLineId"];
+          const targetDate = currentTimeLine[dateKey];
+          const targetTime = currentTimeLine[timeKey];
+          sendNotification(timeLineId, targetDate, targetTime);
         }
       }
     } catch {
