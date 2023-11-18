@@ -20,10 +20,7 @@ app.get("/info/masterkey", async (req, res) => {
 });
 
 app.get("/time/masterkey", async (req, res) => {
-  const isSucceed = await masterKeyTimeCrawl();
-  res.json({
-    isSucceed,
-  });
+  await masterKeyTimeCrawl(0);
 });
 
 server.listen(PORT, () => {

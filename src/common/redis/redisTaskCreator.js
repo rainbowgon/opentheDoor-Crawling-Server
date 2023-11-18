@@ -1,37 +1,19 @@
+import flattenTimeLine from "../tools/flattenTimeLine.js";
 import { createHashKey } from "../tools/hashCreator.js";
 
-const createInsertDataTask = (venue, bid, results, redisClient) => {
-  for (const result of results) {
-    const { themeTitle, timePossibleList } = result;
-    // const HASH_KEY = createHashKey(venue, bid);
+const createInsertDataTask = (timeLine, redisClient) => {
+  return new Promise(async (resolve, reject) => {
+    const previousData = await redisClient.hgetall("TimeLine:" + timeLine.timeLineId);
 
-    console.log(timePossibleList);
+    if (check(previousData, timeLine)) {
+      resolve();
+      return;
+    }
 
-    return new Promise((resolve, reject) => {
-      redisClient.get(themeTitle, async (error, previousData) => {
-        if (error) {
-          console.error(error);
-          return reject(error);
-        }
-
-        if (isNotChanged(previousData, timePossibleList)) {
-          resolve();
-          return;
-        }
-
-        redisClient.hmset(themeTitle, ...timePossibleList, async (error) => {
-          if (error) {
-            console.error(error);
-            return reject(error);
-          }
-
-          resolve();
-        });
-      });
-    });
-  }
+    await redisClient.hmset("TimeLine:" + timeLine.timeLineId, ...flattenTimeLine(timeLine));
+  });
 };
 
-const isNotChanged = (previous, current) => previous && previous === current;
+const check = (previous, current) => Object.keys(previous).length !== 0;
 
 export { createInsertDataTask };
