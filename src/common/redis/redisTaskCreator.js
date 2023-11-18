@@ -27,33 +27,31 @@ const checkEmptyTimeSlot = (previousTimeLine, currentTimeLine) => {
   const currentStatusKeys = filterStatusKeys(currentTimeLine);
 
   if (previousStatusKeys.length !== currentStatusKeys.length) {
-    return true;
+    return;
   }
 
-  try {
-    for (const previousKey of previousStatusKeys) {
-      if (isEmptied(previousTimeLine, currentTimeLine, previousKey)) {
+  for (const previousKey of previousStatusKeys) {
+    try {
+      if (isNowEmptied(previousTimeLine, currentTimeLine, previousKey)) {
         const stringList = previousKey.split(".");
         const dateKey = stringList.slice(0, 2).join(".") + ".date";
         const timeKey = stringList.slice(0, 4).join(".") + ".time";
 
-        if (checkDateTime(previousTimeLine, currentTimeLine, dateKey, timeKey)) {
-          // console.log("\n\n");
-          // console.log("There is a new empty place...");
-          // console.log("Theme Title:" + currentTimeLine["timeLineId"]);
-          // console.log("date:" + previousTimeLine[dateKey]);
-          // console.log("time:" + previousTimeLine[timeKey]);
+        if (validateDateTime(previousTimeLine, currentTimeLine, dateKey, timeKey)) {
+          // 빈자리 알림
         }
       }
+    } catch {
+      continue;
     }
-  } catch (error) {}
+  }
 };
 
-const checkDateTime = (previousTimeLine, currentTimeLine, dateKey, timeKey) =>
+const validateDateTime = (previousTimeLine, currentTimeLine, dateKey, timeKey) =>
   previousTimeLine[dateKey] == currentTimeLine[dateKey] &&
   previousTimeLine[timeKey] == currentTimeLine[timeKey];
 
-const isEmptied = (previousTimeLine, currentTimeLine, previousKey) =>
+const isNowEmptied = (previousTimeLine, currentTimeLine, previousKey) =>
   previousTimeLine[previousKey] == AvailableStatus.NOT_AVAILABLE &&
   currentTimeLine[previousKey] == AvailableStatus.AVAILABLE;
 
