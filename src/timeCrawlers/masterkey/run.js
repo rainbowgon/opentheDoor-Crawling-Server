@@ -7,9 +7,10 @@ import { REDIS_HOST, REDIS_PORT } from "../../common/config/env.js";
 const PARALLEL_BATCH_SIZE = 4;
 
 const run = async () => {
+  const browser = await createBrowser();
+  const redisClient = new Redis({ host: REDIS_HOST, port: REDIS_PORT }); // Redis 클라이언트 생성
+
   try {
-    const browser = await createBrowser();
-    const redisClient = new Redis({ host: REDIS_HOST, port: REDIS_PORT }); // Redis 클라이언트 생성
     const tasks = [];
 
     for (let i = 0; i < BID_LIST.length; i += PARALLEL_BATCH_SIZE) {
