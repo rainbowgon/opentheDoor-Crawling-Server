@@ -1,9 +1,9 @@
 import { MongoClient } from "mongodb";
 import createIndex from "../../common/elasticSearch/createIndex.js";
-import { createBrowser } from "../../common/tools/fetch.js";
 import { MONGODB_COLLECTION_NAME, MONGODB_DB_NAME, MONGODB_URL } from "../../common/config/env.js";
 import crawlAllPages from "./crawler.js";
 import { BID_LIST } from "../../common/config/masterkey.js";
+import { createBrowser } from "../../common/tools/browser.js";
 
 const PARALLEL_BATCH_SIZE = 4;
 
