@@ -6,7 +6,7 @@ import { createBrowser } from "../../common/tools/browser.js";
 const PARALLEL_BATCH_SIZE = 4;
 
 const run = async (retryCount) => {
-  console.log("\n\n\n\n\n\n");
+  console.log("\n\n\n");
   console.log("retryCount:", retryCount);
   const browser = await createBrowser();
   const redisClient = new Redis(); // Redis 클라이언트 생성
@@ -16,10 +16,10 @@ const run = async (retryCount) => {
     return await run(retryCount + 1);
   } catch (error) {
     console.log(error);
+    return await run(retryCount + 1);
   } finally {
     await browser.close();
     redisClient.quit();
-    return await run(retryCount + 1);
   }
 };
 

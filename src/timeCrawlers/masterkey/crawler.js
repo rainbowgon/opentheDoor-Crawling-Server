@@ -10,7 +10,6 @@ const crawlAllTimes = async (bids, browser, redisClient) => {
 
   for (const bid of bids) {
     const page = await createPage(browser);
-    console.log("bid:", bid);
     await Promise.all([
       page.waitForNavigation(),
       page.goto(createTargetUrl(bid)),
