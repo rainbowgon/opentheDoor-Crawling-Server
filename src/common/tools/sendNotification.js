@@ -1,14 +1,17 @@
 import axios from "axios";
-import { SERVER_URL } from "../config/env.js";
+import { SERVER_URL, NOTIFY_ON_OFF } from "../config/env.js";
 
 const sendNotification = (timeLineId, targetDate, targetTime) => {
-  try {
-    axios.post(SERVER_URL, {
+  if (NOTIFY_ON_OFF == "OFF") {
+    return;
+  }
+  axios
+    .post(`${SERVER_URL}/reservation-service/waitings/unauth/notify/empty-slot`, {
       timeLineId,
       targetDate,
       targetTime,
-    });
-  } catch {}
+    })
+    .catch((error) => console.error(error));
 };
 
 export default sendNotification;
