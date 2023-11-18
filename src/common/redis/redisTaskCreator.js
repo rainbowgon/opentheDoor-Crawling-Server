@@ -1,5 +1,4 @@
 import flattenTimeLine from "../tools/flattenTimeLine.js";
-import { createHashKey } from "../tools/hashCreator.js";
 
 const createInsertDataTask = (timeLine, redisClient) => {
   return new Promise(async (resolve, reject) => {

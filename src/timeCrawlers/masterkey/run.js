@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { BID_LIST } from "../../common/config/masterkey.js";
 import crawlAllTimes from "./crawler.js";
-import { createBrowser, createPage } from "../../common/tools/browser.js";
+import { createBrowser } from "../../common/tools/browser.js";
 
 const PARALLEL_BATCH_SIZE = 4;
 
@@ -16,10 +16,10 @@ const run = async (retryCount) => {
     return await run(retryCount + 1);
   } catch (error) {
     console.log(error);
-    await browser.close();
-    return await run(retryCount + 1);
   } finally {
+    await browser.close();
     redisClient.quit();
+    return await run(retryCount + 1);
   }
 };
 

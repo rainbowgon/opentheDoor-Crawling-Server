@@ -19,8 +19,8 @@ app.get("/info/masterkey", async (req, res) => {
   });
 });
 
-app.get("/time/masterkey", async (req, res) => {
-  await masterKeyTimeCrawl(0);
+app.get("/time/masterkey", (req, res) => {
+  masterKeyTimeCrawl(0);
 });
 
 server.listen(PORT, () => {

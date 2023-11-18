@@ -1,4 +1,4 @@
-import { VENUE, createTargetUrl } from "../../common/config/masterkey.js";
+import { createTargetUrl } from "../../common/config/masterkey.js";
 import { createInsertDataTask } from "../../common/redis/redisTaskCreator.js";
 import { createPage } from "../../common/tools/browser.js";
 import { Time, TimeLine, TimeSlot } from "../../common/tools/class.js";
@@ -11,25 +11,17 @@ const crawlAllTimes = async (bids, browser, redisClient) => {
   for (const bid of bids) {
     const page = await createPage(browser);
     console.log("bid:", bid);
-    try {
-      await Promise.all([
-        page.waitForNavigation(),
-        page.goto(createTargetUrl(bid)),
-        page.waitForSelector("#tab1 > div.box1 > div > div.date-click > div"),
-      ]);
+    await Promise.all([
+      page.waitForNavigation(),
+      page.goto(createTargetUrl(bid)),
+      page.waitForSelector("#tab1 > div.box1 > div > div.date-click > div"),
+    ]);
 
-      const timeLines = await crawlCurrentPage(page);
-      for (const timeLine of timeLines) {
-        tasks.push(createInsertDataTask(timeLine, redisClient));
-      }
-    } catch (error) {
-      console.log("error");
-      console.log("bid:", bid);
-      console.log(error);
-      throw error;
-    } finally {
-      await page.close();
+    const timeLines = await crawlCurrentPage(page);
+    for (const timeLine of timeLines) {
+      tasks.push(createInsertDataTask(timeLine, redisClient));
     }
+    await page.close();
   }
 
   return Promise.all(tasks);
@@ -86,14 +78,10 @@ const crawl = (content) => {
 };
 
 const clickDateAndWait = async (page, index) => {
-  await page.click(`#tab1 > div.box1 > div > div.date-click > div > p:nth-child(${index})`, {
-    waitUntil: "load",
-    timeout: 0,
-  });
-
-  return await page
-    .waitForSelector("#booking_list", { visible: true, timeout: 5000 })
-    .catch(() => false);
+  return Promise.all([
+    page.click(`#tab1 > div.box1 > div > div.date-click > div > p:nth-child(${index})`),
+    page.waitForSelector("#booking_list", { visible: true }),
+  ]).catch(() => false);
 };
 
 const insertResult = (totalResults, results) => {
