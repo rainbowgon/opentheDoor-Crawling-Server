@@ -2,6 +2,7 @@ import Redis from "ioredis";
 import { BID_LIST } from "../../common/config/masterkey.js";
 import crawlAllTimes from "./crawler.js";
 import { createBrowser } from "../../common/tools/browser.js";
+import { REDIS_HOST, REDIS_PORT } from "../../common/config/env.js";
 
 const PARALLEL_BATCH_SIZE = 4;
 
@@ -9,7 +10,7 @@ const run = async (retryCount) => {
   console.log("\n\n\n");
   console.log("retryCount:", retryCount);
   const browser = await createBrowser();
-  const redisClient = new Redis(); // Redis 클라이언트 생성
+  const redisClient = new Redis({ host: REDIS_HOST, port: REDIS_PORT }); // Redis 클라이언트 생성
 
   try {
     await f(browser, redisClient);
