@@ -7,8 +7,6 @@ import { REDIS_HOST, REDIS_PORT } from "../../common/config/env.js";
 const PARALLEL_BATCH_SIZE = 4;
 
 const run = async (retryCount) => {
-  console.log("\n\n\n");
-  console.log("retryCount:", retryCount);
   const browser = await createBrowser();
   const redisClient = new Redis({ host: REDIS_HOST, port: REDIS_PORT }); // Redis 클라이언트 생성
 
