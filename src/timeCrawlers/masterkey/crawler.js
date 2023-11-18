@@ -49,7 +49,7 @@ const crawl = (content) => {
   const pageResult = [];
 
   box2InnerDivs.each((_, div) => {
-    const themeTitle = $(div).find(".left.room_explanation_go .title")?.text() || "";
+    const themeTitle = $(div).find(".left.room_explanation_go .title")?.text().trim() || "";
     const timeSlot = new TimeSlot(date);
 
     const pTags = $(div).find("p");
@@ -59,7 +59,7 @@ const crawl = (content) => {
         ?.text()
         .match(/(\d{2}:\d{2})/);
       const time = timeMatch ? timeMatch[1] : "";
-      let isAvailable = $(aTag).find("span")?.text() || "";
+      let isAvailable = $(aTag).find("span")?.text().trim() || "";
 
       if (isAvailable == "예약완료") {
         isAvailable = AvailableStatus.NOT_AVAILABLE;

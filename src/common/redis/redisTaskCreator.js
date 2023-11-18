@@ -4,7 +4,7 @@ import { createHash } from "../tools/hashCreator.js";
 
 const createInsertDataTask = (timeLine, redisClient) => {
   return new Promise(async (resolve, reject) => {
-    const previousData = await redisClient.hgetall("TimeLine:" + timeLine.timeLineId);
+    const previousData = await redisClient.hgetall(`TimeLine:${timeLine.timeLineId}`);
 
     if (isNotChanged(previousData, timeLine)) {
       resolve();
@@ -14,7 +14,7 @@ const createInsertDataTask = (timeLine, redisClient) => {
     const flattened = flattenTimeLineObject(timeLine);
     checkEmptyTimeSlot(previousData, flattened);
 
-    await redisClient.hmset("TimeLine:" + timeLine.timeLineId, ...flattenObjectList(flattened));
+    await redisClient.hmset(`TimeLine:${timeLine.timeLineId}`, ...flattenObjectList(flattened));
   });
 };
 
