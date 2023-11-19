@@ -4,19 +4,21 @@ import { createPage } from "../../common/tools/browser.js";
 import { Time, TimeLine, TimeSlot } from "../../common/tools/class.js";
 import AvailableStatus from "../../common/tools/enum.js";
 import * as cheerio from "cheerio";
+import { createTimeLineId } from "../../common/tools/hashCreator.js";
 
 const crawlAllTimes = async (bids, browser, redisClient) => {
   const tasks = [];
 
   for (const bid of bids) {
     const page = await createPage(browser);
+    const targetUrl = createTargetUrl(bid);
     await Promise.all([
       page.waitForNavigation(),
-      page.goto(createTargetUrl(bid)),
+      page.goto(targetUrl),
       page.waitForSelector("#tab1 > div.box1 > div > div.date-click > div"),
     ]);
 
-    const timeLines = await crawlCurrentPage(page);
+    const timeLines = await crawlCurrentPage(targetUrl, page);
     for (const timeLine of timeLines) {
       tasks.push(createInsertDataTask(timeLine, redisClient));
     }
@@ -26,7 +28,7 @@ const crawlAllTimes = async (bids, browser, redisClient) => {
   return Promise.all(tasks);
 };
 
-const crawlCurrentPage = async (page) => {
+const crawlCurrentPage = async (targetUrl, page) => {
   const totalResults = {};
 
   for (let i = 1; i < 9; i++) {
@@ -34,14 +36,14 @@ const crawlCurrentPage = async (page) => {
       return;
     }
 
-    const results = crawl(await page.content());
+    const results = crawl(targetUrl, await page.content());
     insertResult(totalResults, results);
   }
 
   return Object.values(totalResults);
 };
 
-const crawl = (content) => {
+const crawl = (targetUrl, content) => {
   const $ = cheerio.load(content);
   const venueTitle = $("h2.theme-title").text().trim();
 
@@ -75,7 +77,7 @@ const crawl = (content) => {
       timeSlot.timeList.push(new Time(time, isAvailable));
     });
 
-    const timeLineId = `${venueTitle}:${themeTitle}`;
+    const timeLineId = createTimeLineId(themeTitle, targetUrl);
     pageResult.push({ timeLineId, timeSlot });
   });
 
