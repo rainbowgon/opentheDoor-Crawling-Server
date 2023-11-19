@@ -43,13 +43,15 @@ const crawlCurrentPage = async (page) => {
 
 const crawl = (content) => {
   const $ = cheerio.load(content);
+  const venueTitle = $("h2.theme-title").text().trim();
+
   const box2InnerDivs = $("#booking_list .box2-inner");
   const date = $(".date_click_div1 p.active").attr("data-dd");
 
   const pageResult = [];
 
   box2InnerDivs.each((_, div) => {
-    const themeTitle = $(div).find(".left.room_explanation_go .title")?.text() || "";
+    const themeTitle = $(div).find(".left.room_explanation_go .title")?.text().trim() || "";
     const timeSlot = new TimeSlot(date);
 
     const pTags = $(div).find("p");
@@ -59,18 +61,22 @@ const crawl = (content) => {
         ?.text()
         .match(/(\d{2}:\d{2})/);
       const time = timeMatch ? timeMatch[1] : "";
-      let isAvailable = $(aTag).find("span")?.text() || "";
+      let isAvailable = $(aTag).find("span")?.text().trim() || "";
 
       if (isAvailable == "예약완료") {
         isAvailable = AvailableStatus.NOT_AVAILABLE;
       } else if (isAvailable == "예약가능") {
         isAvailable = AvailableStatus.AVAILABLE;
+      } else {
+        console.log("New Status: ", isAvailable);
+        isAvailable = AvailableStatus.NOT_AVAILABLE;
       }
 
       timeSlot.timeList.push(new Time(time, isAvailable));
     });
 
-    pageResult.push({ themeTitle, timeSlot });
+    const timeLineId = `${venueTitle}:${themeTitle}`;
+    pageResult.push({ timeLineId, timeSlot });
   });
 
   return pageResult;
@@ -84,15 +90,15 @@ const clickDateAndWait = async (page, index) => {
 };
 
 const insertResult = (totalResults, results) => {
-  for (const { themeTitle, timeSlot } of Object.values(results)) {
+  for (const { timeLineId, timeSlot } of Object.values(results)) {
     let timeLine;
-    if (totalResults.hasOwnProperty(themeTitle)) {
-      timeLine = totalResults[themeTitle];
+    if (totalResults.hasOwnProperty(timeLineId)) {
+      timeLine = totalResults[timeLineId];
     } else {
-      timeLine = new TimeLine(themeTitle);
-      totalResults[themeTitle] = timeLine;
+      timeLine = new TimeLine(timeLineId);
+      totalResults[timeLineId] = timeLine;
     }
-    totalResults[themeTitle].timeSlotList.push(timeSlot);
+    totalResults[timeLineId].timeSlotList.push(timeSlot);
   }
 };
 

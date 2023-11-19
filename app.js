@@ -15,7 +15,7 @@ const PORT = 3000;
 
 cron
   .schedule("*/20 * * * * *", () => {
-    masterKeyTimeCrawl(0);
+    masterKeyTimeCrawl();
   })
   .start();
 
