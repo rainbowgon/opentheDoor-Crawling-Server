@@ -44,11 +44,11 @@ const checkEmptyTimeSlot = (previousTimeLine, currentTimeLine) => {
           const targetDate = currentTimeLine[dateKey];
           const targetTime = currentTimeLine[timeKey];
 
-          console.log("\n\n");
-          console.log("There is a new empty timeslot...");
-          console.log("timeLineId:", timeLineId);
-          console.log("targetDate:", targetDate);
-          console.log("targetTime:", targetTime);
+          // console.log("\n\n");
+          // console.log("There is a new empty timeslot...");
+          // console.log("timeLineId:", timeLineId);
+          // console.log("targetDate:", targetDate);
+          // console.log("targetTime:", targetTime);
           sendNotification(timeLineId, targetDate, targetTime);
         }
       }
