@@ -70,7 +70,6 @@ const crawl = (targetUrl, content) => {
       } else if (isAvailable == "예약가능") {
         isAvailable = AvailableStatus.AVAILABLE;
       } else {
-        console.log("New Status: ", isAvailable);
         isAvailable = AvailableStatus.NOT_AVAILABLE;
       }
 
