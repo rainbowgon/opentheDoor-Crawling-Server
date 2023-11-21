@@ -43,10 +43,7 @@ const esInsertData = async (data, url) => {
     };
   });
 
-  const body = processedData.flatMap((doc) => [
-    { index: { _index: INDEX_NAME } },
-    doc,
-  ]);
+  const body = processedData.flatMap((doc) => [{ index: { _index: INDEX_NAME } }, doc]);
   await esClient.bulk({ refresh: true, body });
 };
 
